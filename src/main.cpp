@@ -1,85 +1,80 @@
 #include <pybind11/pybind11.h>
+#include <cpu.h>
 #include <net.h>
-#include <datareader.h>
+#include <option.h>
+
+#include "pybind11_datareader.h"
+#include "pybind11_allocator.h"
 using namespace ncnn;
 
 namespace py = pybind11;
 
-class DataReaderFromEmpty : public ncnn::DataReader {
-public:
-	virtual int scan(const char* format, void* p) const {
-		return 0;
-	}
-	virtual size_t read(void* buf, size_t size) const {
-		memset(buf, 0, size); return size;
-	}
-};
-
-class PyDataReader : public DataReader {
-public:
-	using DataReader::DataReader;
-#if NCNN_STRING
-	int scan(const char* format, void* p) const override {
-		PYBIND11_OVERLOAD(int, DataReader, scan, format, p);
-	}
-#endif
-	size_t read(void* buf, size_t size) const override {
-		PYBIND11_OVERLOAD(size_t, DataReader, read, buf, size);
-	}
-};
-
-class PyDataReaderFromMemory : public DataReaderFromMemory {
-public:
-	using DataReaderFromMemory::DataReaderFromMemory;
-#if NCNN_STRING
-	int scan(const char* format, void* p) const override {
-		PYBIND11_OVERLOAD(int, DataReaderFromMemory, scan, format, p);
-	}
-#endif
-	size_t read(void* buf, size_t size) const override {
-		PYBIND11_OVERLOAD(size_t, DataReaderFromMemory, read, buf, size);
-	}
-};
-
-class PyDataReaderFromEmpty : public DataReaderFromEmpty {
-public:
-	using DataReaderFromEmpty::DataReaderFromEmpty;
-#if NCNN_STRING
-	int scan(const char* format, void* p) const override {
-		PYBIND11_OVERLOAD(int, DataReaderFromEmpty, scan, format, p);
-	}
-#endif
-	size_t read(void* buf, size_t size) const override {
-		PYBIND11_OVERLOAD(size_t, DataReaderFromEmpty, read, buf, size);
-	}
-};
-
 PYBIND11_MODULE(pyncnn, m) {
-	py::class_< DataReader, PyDataReader>(m, "DataReader")
+	py::class_<Allocator, PyAllocator<>>(m, "Allocator");
+	py::class_<PoolAllocator, Allocator, PyAllocatorOther<PoolAllocator>>(m, "PoolAllocator")
+		.def(py::init<>())
+		.def("set_size_compare_ratio", &PoolAllocator::set_size_compare_ratio)
+		.def("clear", &PoolAllocator::clear)
+		.def("fastMalloc", &PoolAllocator::fastMalloc)
+		.def("fastFree", &PoolAllocator::fastFree);
+	py::class_<UnlockedPoolAllocator, Allocator, PyAllocatorOther<UnlockedPoolAllocator>>(m, "UnlockedPoolAllocator")
+		.def(py::init<>())
+		.def("set_size_compare_ratio", &UnlockedPoolAllocator::set_size_compare_ratio)
+		.def("clear", &UnlockedPoolAllocator::clear)
+		.def("fastMalloc", &UnlockedPoolAllocator::fastMalloc)
+		.def("fastFree", &UnlockedPoolAllocator::fastFree);
+
+	py::class_<DataReader, PyDataReader<>>(m, "DataReader")
 		.def(py::init<>())
 		.def("scan", &DataReader::scan)
-		.def("read", &DataReader::read)
-		;
-	//py::class_<DataReaderFromMemory, PyDataReaderFromMemory>(m, "DataReaderFromMemory")
-	//	.def(py::init<const unsigned char*>())
-	//	.def("scan", &DataReaderFromMemory::scan)
-	//	.def("read", &DataReaderFromMemory::read)
-	//	;
-	py::class_<DataReaderFromEmpty, PyDataReaderFromEmpty>(m, "DataReaderFromEmpty")
+		.def("read", &DataReader::read);
+	py::class_<DataReaderFromEmpty, DataReader, PyDataReaderOther<DataReaderFromEmpty>>(m, "DataReaderFromEmpty")
 		.def(py::init<>())
 		.def("scan", &DataReaderFromEmpty::scan)
-		.def("read", &DataReaderFromEmpty::read)
-		;
+		.def("read", &DataReaderFromEmpty::read);
+
+	py::class_<Option>(m, "Option")
+		.def(py::init<>())
+		.def_readwrite("lightmode", &Option::lightmode)
+		.def_readwrite("num_threads", &Option::num_threads)
+		.def_readwrite("use_winograd_convolution", &Option::use_winograd_convolution)
+		.def_readwrite("use_sgemm_convolution", &Option::use_sgemm_convolution)
+		.def_readwrite("use_int8_inference", &Option::use_int8_inference)
+		.def_readwrite("use_vulkan_compute", &Option::use_vulkan_compute)
+		.def_readwrite("use_fp16_packed", &Option::use_fp16_packed)
+		.def_readwrite("use_fp16_storage", &Option::use_fp16_storage)
+		.def_readwrite("use_fp16_arithmetic", &Option::use_fp16_arithmetic)
+		.def_readwrite("use_int8_storage", &Option::use_int8_storage)
+		.def_readwrite("use_int8_arithmetic", &Option::use_int8_arithmetic)
+		.def_readwrite("use_packing_layout", &Option::use_packing_layout);
 
 	py::class_<Mat>(m, "Mat")
 		.def(py::init<>())
+		.def(py::init<int>())
 		.def(py::init<int, size_t>())
+		.def(py::init<int, size_t, Allocator*>())
+		.def(py::init<int, int>())
 		.def(py::init<int, int, size_t>())
+		.def(py::init<int, int, size_t, Allocator*>())
+		.def(py::init<int, int, int>())
 		.def(py::init<int, int, int, size_t>())
+		.def(py::init<int, int, int, size_t, Allocator*>())
 		.def(py::init<int, size_t, int>())
+		.def(py::init<int, size_t, int, Allocator*>())
 		.def(py::init<int, int, size_t, int>())
+		.def(py::init<int, int, size_t, int, Allocator*>())
+		.def(py::init<int, int, int, size_t, int>())
+		.def(py::init<int, int, int, size_t, int, Allocator*>())
 		//.def("fill", py::overload_cast<float>(&Mat::fill))
 		//.def("fill", py::overload_cast<int>(&Mat::fill))
+		.def("empty", &Mat::empty)
+		.def("total", &Mat::total)
+		.def("channel", py::overload_cast<int>(&Mat::channel))
+		//.def("row", py::overload_cast<int>(&Mat::row))
+		.def("channel_range", py::overload_cast<int, int>(&Mat::channel_range))
+		.def("row_range", py::overload_cast<int, int>(&Mat::row_range))
+		.def("range", py::overload_cast<int, int>(&Mat::range))
+		.def("__getitem__", [](const Mat& m, size_t i) { return m[i]; })
 		;
 
 	py::class_<ncnn::Extractor>(m, "Extractor")
@@ -90,11 +85,11 @@ PYBIND11_MODULE(pyncnn, m) {
 		.def("extract", py::overload_cast<const char*, Mat&>(&Extractor::extract))
 #endif
 		.def("input", py::overload_cast<int, const Mat&>(&Extractor::input))
-		.def("extract", py::overload_cast<int, Mat&>(&Extractor::extract))
-		;
+		.def("extract", py::overload_cast<int, Mat&>(&Extractor::extract));
 
 	py::class_<Net>(m, "Net")
 		.def(py::init<>())
+		.def_readwrite("opt", &Net::opt)
 		.def("load_param", py::overload_cast<const DataReader&>(&Net::load_param))
 		.def("load_model", py::overload_cast<const DataReader&>(&Net::load_model))
 		//.def("load_model", py::overload_cast<const DataReaderFromEmpty&>(&Net::load_model))
@@ -104,11 +99,15 @@ PYBIND11_MODULE(pyncnn, m) {
 #endif
 		.def("load_param", py::overload_cast<const unsigned char*>(&Net::load_param))
 		.def("load_model", py::overload_cast<const unsigned char*>(&Net::load_model))
-		.def("create_extractor", &Net::create_extractor)
-		;
+		.def("clear", &Net::clear)
+		.def("create_extractor", &Net::create_extractor);
+
+	m.def("set_cpu_powersave", &set_cpu_powersave);
+	m.def("set_cpu_powersave", &set_omp_dynamic);
+	m.def("set_cpu_powersave", &set_omp_num_threads);
 
 	m.doc() = R"pbdoc(
-        Pybind11 example plugin
+        ncnn python wrapper
         -----------------------
         .. currentmodule:: cmake_example
         .. autosummary::
@@ -117,17 +116,6 @@ PYBIND11_MODULE(pyncnn, m) {
            subtract
     )pbdoc";
 
-	/*
-	m.def("add", &add, R"pbdoc(
-	Add two numbers
-	Some other explanation about the add function.
-	)pbdoc");
-
-	m.def("subtract", [](int i, int j) { return i - j; }, R"pbdoc(
-	Subtract two numbers
-	Some other explanation about the subtract function.
-	)pbdoc");
-	*/
 #ifdef VERSION_INFO
 	m.attr("__version__") = VERSION_INFO;
 #else
