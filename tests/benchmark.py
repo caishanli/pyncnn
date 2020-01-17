@@ -85,7 +85,7 @@ if __name__ == "__main__":
     print("gpu_device = %d"%(gpu_device))
 
     mat = ncnn.Mat(227, 227, 3)
-    benchmark("ncnn", mat, opt)
+    benchmark("alexnet", mat, opt)
 
 
 
