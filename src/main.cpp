@@ -37,6 +37,8 @@ PYBIND11_MODULE(pyncnn, m) {
 		.def(py::init<>())
 		.def_readwrite("lightmode", &Option::lightmode)
 		.def_readwrite("num_threads", &Option::num_threads)
+		.def_readwrite("blob_allocator", &Option::blob_allocator)
+		.def_readwrite("workspace_allocator", &Option::workspace_allocator)
 		.def_readwrite("use_winograd_convolution", &Option::use_winograd_convolution)
 		.def_readwrite("use_sgemm_convolution", &Option::use_sgemm_convolution)
 		.def_readwrite("use_int8_inference", &Option::use_int8_inference)
@@ -149,9 +151,16 @@ PYBIND11_MODULE(pyncnn, m) {
 		.def("clear", &Net::clear)
 		.def("create_extractor", &Net::create_extractor);
 
+	m.def("cpu_support_arm_neon", &cpu_support_arm_neon);
+	m.def("cpu_support_arm_vfpv4", &cpu_support_arm_vfpv4);
+	m.def("cpu_support_arm_asimdhp", &cpu_support_arm_asimdhp);
+	m.def("get_cpu_count", &get_cpu_count);
+	m.def("get_cpu_powersave", &get_cpu_powersave);
 	m.def("set_cpu_powersave", &set_cpu_powersave);
-	m.def("set_cpu_powersave", &set_omp_dynamic);
-	m.def("set_cpu_powersave", &set_omp_num_threads);
+	m.def("get_omp_num_threads", &get_omp_num_threads);
+	m.def("set_omp_num_threads", &set_omp_num_threads);
+	m.def("get_omp_dynamic", &get_omp_dynamic);
+	m.def("set_omp_dynamic", &set_omp_dynamic);
 
 	m.doc() = R"pbdoc(
         ncnn python wrapper
