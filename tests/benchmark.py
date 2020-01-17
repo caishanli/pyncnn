@@ -2,8 +2,6 @@ import sys
 import time
 import pyncnn as ncnn
 
-model_dir = "/home/test/word/3rdparty/ncnn/benchmark/"
-
 g_warmup_loop_count = 8
 g_loop_count = 4
 
@@ -11,12 +9,12 @@ g_blob_pool_allocator = ncnn.UnlockedPoolAllocator()
 g_workspace_pool_allocator = ncnn.PoolAllocator()
 
 def benchmark(comment, _in, opt):
-    _in.fill(0.01)
+    #_in.fill(0.01)
 
     net = ncnn.Net()
     net.opt = opt
 
-    net.load_param(model_dir + comment + ".param")
+    net.load_param(comment + ".param")
 
     dr = ncnn.DataReaderFromEmpty()
     net.load_model(dr)
@@ -31,7 +29,7 @@ def benchmark(comment, _in, opt):
 
     time_min = sys.float_info.max
     time_max = -sys.float_info.max
-    time_avg = 0
+    time_avg = 0.0
 
     for i in range(g_loop_count):
         start = time.time()
@@ -46,7 +44,7 @@ def benchmark(comment, _in, opt):
 
         time_min = timespan if timespan < time_min else time_min
         time_max = timespan if timespan > time_max else time_max
-        time_avg += time
+        time_avg += timespan
 
     time_avg /= g_loop_count
 
@@ -62,10 +60,10 @@ if __name__ == "__main__":
     g_loop_count = loop_count
 
     opt = ncnn.Option()
-    opt.lightmode = True
+    opt.lightmode = False
     opt.num_threads = num_threads
-    opt.blob_allocator = g_blob_pool_allocator
-    opt.workspace_allocator = g_workspace_pool_allocator
+    #opt.blob_allocator = g_blob_pool_allocator
+    #opt.workspace_allocator = g_workspace_pool_allocator
     opt.use_winograd_convolution = True
     opt.use_sgemm_convolution = True
     opt.use_int8_inference = True
@@ -87,7 +85,7 @@ if __name__ == "__main__":
     print("gpu_device = %d"%(gpu_device))
 
     mat = ncnn.Mat(227, 227, 3)
-    benchmark("alexnet", mat, opt)
+    benchmark("ncnn", mat, opt)
 
 
 
