@@ -1,5 +1,5 @@
 # pyncnn
-python wrapper of ncnn with pybind11
+python wrapper of [ncnn](https://github.com/Tencent/ncnn) with [pybind11](https://github.com/pybind/pybind11)
 
 ## Prerequisites
 
