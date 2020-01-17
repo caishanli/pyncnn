@@ -3,7 +3,7 @@
 
 #include <allocator.h>
 
-template <class Base = Allocator>
+template <class Base = ncnn::Allocator>
 class PyAllocator : public Base {
 public:
 	using Base::Base; // Inherit constructors

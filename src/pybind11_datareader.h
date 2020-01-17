@@ -13,7 +13,7 @@ public:
 	}
 };
 
-template <class Base = DataReader>
+template <class Base = ncnn::DataReader>
 class PyDataReader : public Base {
 public:
 	using Base::Base; // Inherit constructors
