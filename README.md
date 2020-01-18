@@ -23,3 +23,16 @@ make
 cd pyncnn
 pip install .
 ```
+
+## Tests
+**test**
+```bash
+cd /path/to/pyncnn/tests
+python3 test.py
+```
+
+**benchmark**
+```bash
+cd /path/to/pyncnn/tests
+python3 benchmark.py
+```

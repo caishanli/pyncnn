@@ -4,10 +4,11 @@ import pyncnn as ncnn
 dr = ncnn.DataReaderFromEmpty()
 
 net = ncnn.Net()
-net.load_param("test.param")
+net.load_param("params/test.param")
 net.load_model(dr)
 
-in_mat = ncnn.Mat(227, 227, 3)
+#must use named param w, h, c for python has no size_t(unsigned int) to call the correct ncnn.Mat
+in_mat = ncnn.Mat(w=227, h=227, c=3)
 out_mat = ncnn.Mat()
 
 start = time.time()

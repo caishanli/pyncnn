@@ -14,7 +14,7 @@ def benchmark(comment, _in, opt):
     net = ncnn.Net()
     net.opt = opt
 
-    net.load_param(comment + ".param")
+    net.load_param("params/" + comment + ".param")
 
     dr = ncnn.DataReaderFromEmpty()
     net.load_model(dr)
@@ -48,22 +48,36 @@ def benchmark(comment, _in, opt):
 
     time_avg /= g_loop_count
 
-    print("%20s  min = %7.2f  max = %7.2f  avg = %7.2f"%(comment, time_min, time_max, time_avg))
+    print("%20s  min = %7.2f  max = %7.2f  avg = %7.2f"%(comment, time_min * 1000, time_max * 1000, time_avg * 1000))
 
 if __name__ == "__main__":
     loop_count = 4
     num_threads = ncnn.get_cpu_count()
     powersave = 0
     gpu_device = -1
-    use_vulkan_compute = False
+
+    argc = len(sys.argv)
+    if argc >= 2:
+        loop_count = int(sys.argv[1])
+    if argc >= 3:
+        num_threads = int(sys.argv[2])
+    if argc >= 4:
+        powersave = int(sys.argv[3])
+    if argc >= 5:
+        gpu_device = int(sys.argv[4])
+    
+    use_vulkan_compute = gpu_device != -1
 
     g_loop_count = loop_count
 
+    g_blob_pool_allocator.set_size_compare_ratio(0.0)
+    g_workspace_pool_allocator.set_size_compare_ratio(0.5)
+
     opt = ncnn.Option()
-    opt.lightmode = False
+    opt.lightmode = True
     opt.num_threads = num_threads
-    #opt.blob_allocator = g_blob_pool_allocator
-    #opt.workspace_allocator = g_workspace_pool_allocator
+    opt.blob_allocator = g_blob_pool_allocator
+    opt.workspace_allocator = g_workspace_pool_allocator
     opt.use_winograd_convolution = True
     opt.use_sgemm_convolution = True
     opt.use_int8_inference = True
@@ -84,8 +98,32 @@ if __name__ == "__main__":
     print("powersave = %d"%(ncnn.get_cpu_powersave()))
     print("gpu_device = %d"%(gpu_device))
 
-    mat = ncnn.Mat(227, 227, 3)
-    benchmark("alexnet", mat, opt)
+    #must use named param w, h, c for python has no size_t(unsigned int) to call the correct ncnn.Mat
+    benchmark("squeezenet", ncnn.Mat(w=227, h=227, c=3), opt)
+    benchmark("squeezenet_int8", ncnn.Mat(w=227, h=227, c=3), opt)
+    benchmark("mobilenet", ncnn.Mat(w=224, h=224, c=3), opt)
+    benchmark("mobilenet_int8", ncnn.Mat(w=224, h=224, c=3), opt)
+    benchmark("mobilenet_v2", ncnn.Mat(w=224, h=224, c=3), opt)
+    benchmark("mobilenet_v3", ncnn.Mat(w=224, h=224, c=3), opt)
+    benchmark("shufflenet", ncnn.Mat(w=224, h=224, c=3), opt)
+    benchmark("shufflenet_v2", ncnn.Mat(w=224, h=224, c=3), opt)
+    benchmark("mnasnet", ncnn.Mat(w=224, h=224, c=3), opt)
+    benchmark("proxylessnasnet", ncnn.Mat(w=224, h=224, c=3), opt)
+    benchmark("googlenet", ncnn.Mat(w=224, h=224, c=3), opt)
+    benchmark("googlenet_int8", ncnn.Mat(w=224, h=224, c=3), opt)
+    benchmark("resnet18", ncnn.Mat(w=224, h=224, c=3), opt)
+    benchmark("resnet18_int8", ncnn.Mat(w=224, h=224, c=3), opt)
+    benchmark("alexnet", ncnn.Mat(w=227, h=227, c=3), opt)
+    benchmark("vgg16", ncnn.Mat(w=224, h=224, c=3), opt)
+    benchmark("vgg16_int8", ncnn.Mat(w=224, h=224, c=3), opt)
+    benchmark("resnet50", ncnn.Mat(w=224, h=224, c=3), opt)
+    benchmark("resnet50_int8", ncnn.Mat(w=224, h=224, c=3), opt)
+    benchmark("squeezenet_ssd", ncnn.Mat(w=300, h=300, c=3), opt)
+    benchmark("squeezenet_ssd_int8", ncnn.Mat(w=300, h=300, c=3), opt)
+    benchmark("mobilenet_ssd", ncnn.Mat(w=300, h=300, c=3), opt)
+    benchmark("mobilenet_ssd_int8", ncnn.Mat(w=300, h=300, c=3), opt)
+    benchmark("mobilenet_yolo", ncnn.Mat(w=416, h=416, c=3), opt)
+    benchmark("mobilenetv2_yolov3", ncnn.Mat(w=352, h=352, c=3), opt)
 
 
 
