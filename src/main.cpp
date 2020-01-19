@@ -2,6 +2,7 @@
 #include <cpu.h>
 #include <net.h>
 #include <option.h>
+#include <blob.h>
 
 #include "pybind11_datareader.h"
 #include "pybind11_allocator.h"
@@ -33,6 +34,14 @@ PYBIND11_MODULE(pyncnn, m) {
 		.def("scan", &DataReaderFromEmpty::scan)
 		.def("read", &DataReaderFromEmpty::read);
 
+	py::class_<Blob>(m, "Blob")
+		.def(py::init<>())
+#if NCNN_STRING
+		.def_readwrite("name", &Blob::name)
+#endif // NCNN_STRING
+		.def_readwrite("producer", &Blob::producer)
+		.def_readwrite("consumers", &Blob::consumers);
+
 	py::class_<Option>(m, "Option")
 		.def(py::init<>())
 		.def_readwrite("lightmode", &Option::lightmode)
@@ -52,65 +61,98 @@ PYBIND11_MODULE(pyncnn, m) {
 
 	py::class_<Mat>(m, "Mat")
 		.def(py::init<>())
+		.def(py::init<int, size_t, Allocator*>(),
+			py::arg("w") = 1, 
+			py::arg("elemsize") = 4, py::arg("allocator") = nullptr)
+		.def(py::init<int, int, size_t, Allocator*>(),
+			py::arg("w") = 1, py::arg("h") = 1,
+			py::arg("elemsize") = 4, py::arg("allocator") = nullptr)
+		.def(py::init<int, int, int, size_t, Allocator*>(),
+			py::arg("w") = 1, py::arg("h") = 1, py::arg("c") = 1,
+			py::arg("elemsize") = 4, py::arg("allocator") = nullptr)
 		.def(py::init<int, size_t, int, Allocator*>(),
 			py::arg("w") = 1,
 			py::arg("elemsize") = 4, py::arg("elempack") = 1, py::arg("allocator") = nullptr)
-		//.def(py::init<int, int, size_t, int>())
 		.def(py::init<int, int, size_t, int, Allocator*>(),
 			py::arg("w") = 1, py::arg("h") = 1,
 			py::arg("elemsize") = 4, py::arg("elempack") = 1, py::arg("allocator") = nullptr)
-		//.def(py::init<int, int, int, size_t, int>())
 		.def(py::init<int, int, int, size_t, int, Allocator*>(),
 			py::arg("w") = 1, py::arg("h") = 1, py::arg("c") = 1,
 			py::arg("elemsize") = 4, py::arg("elempack") = 1, py::arg("allocator") = nullptr)
-		//.def(py::init<const Mat&>())
-		//.def(py::init<int, void*>())
-		//.def(py::init<int, void*, size_t>())
-		//.def(py::init<int, void*, size_t, Allocator*>())
-		//.def(py::init<int, int, void*>())
-		//.def(py::init<int, int, void*, size_t>())
-		//.def(py::init<int, int, void*, size_t, Allocator*>())
-		//.def(py::init<int, int, int, void*>())
-		//.def(py::init<int, int, int, void*, size_t>())
-		//.def(py::init<int, int, int, void*, size_t, Allocator*>())
-		//.def(py::init<int, void*, size_t, int>())
-		//.def(py::init<int, void*, size_t, int, Allocator*>())
-		//.def(py::init<int, int, void*, size_t, int>())
-		//.def(py::init<int, int, void*, size_t, int, Allocator*>())
-		//.def(py::init<int, int, int, void*, size_t, int>())
-		//.def(py::init<int, int, int, void*, size_t, int, Allocator*>(), 
-		//	py::arg("w")=1, py::arg("h")=1, py::arg("c")=1)
+		.def(py::init<const Mat&>())
+		.def(py::init<int, void*, size_t, Allocator*>(),
+			py::arg("w") = 1, py::arg("data") = nullptr,
+			py::arg("elemsize") = 4, py::arg("allocator") = nullptr)
+		.def(py::init<int, int, void*, size_t, Allocator*>(),
+			py::arg("w") = 1, py::arg("h") = 1, py::arg("data") = nullptr,
+			py::arg("elemsize") = 4, py::arg("allocator") = nullptr)
+		.def(py::init<int, int, int, void*, size_t, Allocator*>(),
+			py::arg("w") = 1, py::arg("h") = 1, py::arg("c") = 1, py::arg("data") = nullptr,
+			py::arg("elemsize") = 4, py::arg("allocator") = nullptr)
+		.def(py::init<int, void*, size_t, int, Allocator*>(),
+			py::arg("w") = 1, py::arg("data") = nullptr,
+			py::arg("elemsize") = 4, py::arg("elempack") = 1, py::arg("allocator") = nullptr)
+		.def(py::init<int, int, void*, size_t, int, Allocator*>(),
+			py::arg("w") = 1, py::arg("h") = 1, py::arg("data") = nullptr,
+			py::arg("elemsize") = 4, py::arg("elempack") = 1, py::arg("allocator") = nullptr)
+		.def(py::init<int, int, int, void*, size_t, int, Allocator*>(),
+			py::arg("w") = 1, py::arg("h") = 1, py::arg("c") = 1, py::arg("data") = nullptr,
+			py::arg("elemsize") = 4, py::arg("elempack") = 1, py::arg("allocator") = nullptr)
 		//todo assign
-		//.def(py::self = py::self)
-		.def("fill", (void (Mat::*)(int))(&Mat::fill))
-		.def("fill", (void (Mat::*)(float))(&Mat::fill))
-		//todo overload functions with default args
-		//.def("clone", &Mat::clone)
-		//.def("reshape", &Mat::reshape)
-		//.def("create", &Mat::create)
-		//.def("create_like", &Mat::create_like)
+		//.def(py::self=py::self)
+		.def("fill", (void(Mat::*)(int))(&Mat::fill))
+		.def("fill", (void(Mat::*)(float))(&Mat::fill))
+		.def("clone", (Mat(Mat::*)(Allocator*))&Mat::clone, py::arg("allocator") = nullptr)
+		.def("reshape", (Mat(Mat::*)(int, Allocator*) const)&Mat::reshape,
+			py::arg("w") = 1, py::arg("allocator") = nullptr)
+		.def("reshape", (Mat(Mat::*)(int, int, Allocator*) const)&Mat::reshape,
+			py::arg("w") = 1, py::arg("h") = 1, py::arg("allocator") = nullptr)
+		.def("reshape", (Mat(Mat::*)(int, int, int, Allocator*) const)&Mat::reshape,
+			py::arg("w") = 1, py::arg("h") = 1, py::arg("c") = 1, py::arg("allocator") = nullptr)
+		.def("create", (void(Mat::*)(int, size_t, Allocator*))&Mat::create,
+			py::arg("w") = 1, 
+			py::arg("elemsize") = 4, py::arg("allocator") = nullptr)
+		.def("create", (void(Mat::*)(int, int, size_t, Allocator*))&Mat::create,
+			py::arg("w") = 1, py::arg("h") = 1,
+			py::arg("elemsize") = 4, py::arg("allocator") = nullptr)
+		.def("create", (void(Mat::*)(int, int, int, size_t, Allocator*))&Mat::create,
+			py::arg("w") = 1, py::arg("h") = 1, py::arg("c") = 1,
+			py::arg("elemsize") = 4, py::arg("allocator") = nullptr)
+		.def("create", (void(Mat::*)(int, size_t, int, Allocator*))&Mat::create,
+			py::arg("w") = 1,
+			py::arg("elemsize") = 4, py::arg("elempack") = 1, py::arg("allocator") = nullptr)
+		.def("create", (void(Mat::*)(int, int, size_t, int, Allocator*))&Mat::create,
+			py::arg("w") = 1, py::arg("h") = 1,
+			py::arg("elemsize") = 4, py::arg("elempack") = 1, py::arg("allocator") = nullptr)
+		.def("create", (void(Mat::*)(int, int, int, size_t, int, Allocator*))&Mat::create,
+			py::arg("w") = 1, py::arg("h") = 1, py::arg("c") = 1,
+			py::arg("elemsize") = 4, py::arg("elempack") = 1, py::arg("allocator") = nullptr)
+		.def("create_like", (void(Mat::*)(const Mat&, Allocator*))&Mat::create_like,
+			py::arg("m") = Mat(), py::arg("allocator") = nullptr)
 		.def("addref", &Mat::addref)
 		.def("release", &Mat::release)
 		.def("empty", &Mat::empty)
 		.def("total", &Mat::total)
-		.def("channel", (Mat (Mat::*)(int))(&Mat::channel))
-		.def("channel", (const Mat(Mat::*)(int) const)(&Mat::channel))
-		.def("row", (float* (Mat::*)(int))(&Mat::row))
-		.def("row", (const float* (Mat::*)(int) const)(&Mat::row))
-		.def("channel_range", (Mat (Mat::*)(int, int))(&Mat::channel_range))
-		.def("channel_range", (const Mat (Mat::*)(int, int) const)(&Mat::channel_range))
-		.def("row_range", (Mat(Mat::*)(int, int))(&Mat::row_range))
-		.def("row_range", (const Mat(Mat::*)(int, int) const)(&Mat::row_range))
-		.def("range", (Mat (Mat::*)(int, int))(&Mat::range))
-		.def("range", (const Mat(Mat::*)(int, int) const)(&Mat::range))
+		.def("channel", (Mat(Mat::*)(int))&Mat::channel)
+		.def("channel", (const Mat(Mat::*)(int) const)&Mat::channel)
+		.def("row", (float*(Mat::*)(int))&Mat::row)
+		.def("row", (const float*(Mat::*)(int) const)&Mat::row)
+		.def("channel_range", (Mat(Mat::*)(int, int))&Mat::channel_range)
+		.def("channel_range", (const Mat(Mat::*)(int, int) const)&Mat::channel_range)
+		.def("row_range", (Mat(Mat::*)(int, int))&Mat::row_range)
+		.def("row_range", (const Mat(Mat::*)(int, int) const)&Mat::row_range)
+		.def("range", (Mat(Mat::*)(int, int))&Mat::range)
+		.def("range", (const Mat(Mat::*)(int, int) const)&Mat::range)
 		//todo __getitem__ in python crashed
 		//.def("__getitem__", [](const Mat& m, size_t i) { return m[i]; })
 		//todo convenient construct from pixel data
-		.def("to_pixels", (void (Mat::*)(unsigned char*, int) const)(&Mat::to_pixels))
-		.def("to_pixels", (void (Mat::*)(unsigned char*, int, int) const)(&Mat::to_pixels))
-		.def("to_pixels_resize", (void (Mat::*)(unsigned char*, int, int, int) const)(&Mat::to_pixels_resize))
-		.def("to_pixels_resize", (void (Mat::*)(unsigned char*, int, int, int, int) const)(&Mat::to_pixels_resize))
+		//.def("from_pixels", (Mat(Mat::*)(const unsigned char*, int, int, int, Allocator*))&Mat::from_pixels)
+		.def("to_pixels", (void(Mat::*)(unsigned char*, int) const)&Mat::to_pixels)
+		.def("to_pixels", (void(Mat::*)(unsigned char*, int, int) const)&Mat::to_pixels)
+		.def("to_pixels_resize", (void(Mat::*)(unsigned char*, int, int, int) const)&Mat::to_pixels_resize)
+		.def("to_pixels_resize", (void(Mat::*)(unsigned char*, int, int, int, int) const)&Mat::to_pixels_resize)
 		.def("substract_mean_normalize", &Mat::substract_mean_normalize)
+		.def("from_float16", &Mat::from_float16)
 		.def_readwrite("data", &Mat::data)
 		.def_readwrite("refcount", &Mat::refcount)
 		.def_readwrite("elemsize", &Mat::elemsize)
@@ -125,29 +167,32 @@ PYBIND11_MODULE(pyncnn, m) {
 	py::class_<Extractor>(m, "Extractor")
 		.def("set_light_mode", &Extractor::set_light_mode)
 		.def("set_num_threads", &Extractor::set_num_threads)
+		.def("set_blob_allocator", &Extractor::set_blob_allocator)
+		.def("set_blob_allocator", &Extractor::set_workspace_allocator)
 #if NCNN_STRING
-		.def("input", (int (Extractor::*)(const char*, const Mat&))(&Extractor::input))
-		.def("extract", (int (Extractor::*)(const char*, Mat&))(&Extractor::extract))
+		.def("input", (int(Extractor::*)(const char*, const Mat&))&Extractor::input)
+		.def("extract", (int(Extractor::*)(const char*, Mat&))&Extractor::extract)
 #endif
-		.def("input", (int (Extractor::*)(int, const Mat&))(&Extractor::input))
-		.def("extract", (int (Extractor::*)(int, Mat&))(&Extractor::extract));
+		.def("input", (int(Extractor::*)(int, const Mat&))&Extractor::input)
+		.def("extract", (int(Extractor::*)(int, Mat&))&Extractor::extract);
 
 	py::class_<Net>(m, "Net")
 		.def(py::init<>())
 		.def_readwrite("opt", &Net::opt)
+		//tode register_custom_layer
 #if NCNN_STRING
-		.def("load_param", (int (Net::*)(const DataReader&))(&Net::load_param))
+		.def("load_param", (int(Net::*)(const DataReader&))&Net::load_param)
 #endif // NCNN_STRING
-		.def("load_param_bin", (int (Net::*)(const DataReader&))(&Net::load_param_bin))
-		.def("load_model", (int (Net::*)(const DataReader&))(&Net::load_model))
+		.def("load_param_bin", (int(Net::*)(const DataReader&))&Net::load_param_bin)
+		.def("load_model", (int(Net::*)(const DataReader&))&Net::load_model)
 
 #if NCNN_STDIO
 #if NCNN_STRING
-		.def("load_param", (int (Net::*)(const char*))(&Net::load_param))
-		.def("load_param_mem", (int (Net::*)(const char*))(&Net::load_param_mem))
+		.def("load_param", (int(Net::*)(const char*))&Net::load_param)
+		.def("load_param_mem", (int(Net::*)(const char*))&Net::load_param_mem)
 #endif // NCNN_STRING
-		.def("load_param_bin", (int (Net::*)(const char*))(&Net::load_param_bin))
-		.def("load_model", (int (Net::*)(const char*))(&Net::load_model))
+		.def("load_param_bin", (int(Net::*)(const char*))&Net::load_param_bin)
+		.def("load_model", (int(Net::*)(const char*))&Net::load_model)
 #endif // NCNN_STDIO
 
 		//todo load from memory
