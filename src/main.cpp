@@ -416,6 +416,7 @@ PYBIND11_MODULE(pyncnn, m)
     m.def("get_gpu_count", &get_gpu_count);
     m.def("get_default_gpu_index", &get_default_gpu_index);
     m.def("get_gpu_info", &get_gpu_info, py::arg("device_index") = get_default_gpu_index());
+    m.def("get_gpu_device", &get_gpu_device, py::arg("device_index") = get_default_gpu_index());
 
     py::class_<VkBufferMemory>(m, "VkBufferMemory")
         .def(py::init<>())

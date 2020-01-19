@@ -2,11 +2,24 @@ import sys
 import time
 import pyncnn as ncnn
 
+class GlobalGpuInstance:
+    def __init__(self):
+        ncnn.create_gpu_instance()
+    def __del__(self):
+        ncnn.destroy_gpu_instance()
+        
+# initialize vulkan runtime before main()
+g_global_gpu_instance = GlobalGpuInstance();
+
 g_warmup_loop_count = 8
 g_loop_count = 4
 
 g_blob_pool_allocator = ncnn.UnlockedPoolAllocator()
 g_workspace_pool_allocator = ncnn.PoolAllocator()
+
+g_vkdev = None
+g_blob_vkallocator = None
+g_staging_vkallocator = None
 
 def benchmark(comment, _in, opt):
     _in.fill(0.01)
@@ -14,10 +27,20 @@ def benchmark(comment, _in, opt):
     net = ncnn.Net()
     net.opt = opt
 
+    if net.opt.use_vulkan_compute:
+        net.set_vulkan_device(g_vkdev)
+
     net.load_param("params/" + comment + ".param")
 
     dr = ncnn.DataReaderFromEmpty()
     net.load_model(dr)
+
+    g_blob_pool_allocator.clear()
+    g_workspace_pool_allocator.clear()
+
+    if net.opt.use_vulkan_compute:
+        g_blob_vkallocator.clear()
+        g_staging_vkallocator.clear()
 
     out = ncnn.Mat()
 
@@ -70,18 +93,30 @@ if __name__ == "__main__":
     if argc >= 5:
         gpu_device = int(sys.argv[4])
     
-    use_vulkan_compute = False#gpu_device != -1
+    n = ncnn.get_gpu_count()
+    use_vulkan_compute = gpu_device != -1
 
     g_loop_count = loop_count
 
     g_blob_pool_allocator.set_size_compare_ratio(0.0)
     g_workspace_pool_allocator.set_size_compare_ratio(0.5)
 
+    if use_vulkan_compute:
+        g_warmup_loop_count = 10
+
+        g_vkdev = ncnn.get_gpu_device(gpu_device)
+
+        g_blob_vkallocator = ncnn.VkBlobBufferAllocator(g_vkdev)
+        g_staging_vkallocator = ncnn.VkStagingBufferAllocator(g_vkdev)
+
     opt = ncnn.Option()
     opt.lightmode = True
     opt.num_threads = num_threads
     opt.blob_allocator = g_blob_pool_allocator
     opt.workspace_allocator = g_workspace_pool_allocator
+    opt.blob_vkallocator = g_blob_vkallocator
+    opt.workspace_vkallocator = g_blob_vkallocator
+    opt.staging_vkallocator = g_staging_vkallocator
     opt.use_winograd_convolution = True
     opt.use_sgemm_convolution = True
     opt.use_int8_inference = True
@@ -101,6 +136,8 @@ if __name__ == "__main__":
     print("num_threads = %d"%(num_threads))
     print("powersave = %d"%(ncnn.get_cpu_powersave()))
     print("gpu_device = %d"%(gpu_device))
+
+    time.sleep(15)
 
     #must use named param w, h, c due to python has no size_t(unsigned int) to call the correct overload ncnn.Mat
     benchmark("squeezenet", ncnn.Mat(w=227, h=227, c=3), opt)
