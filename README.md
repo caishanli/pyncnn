@@ -1,5 +1,5 @@
 # pyncnn
-python wrapper of [ncnn](https://github.com/Tencent/ncnn) with [pybind11](https://github.com/pybind/pybind11)
+python wrapper of [ncnn](https://github.com/Tencent/ncnn) with [pybind11](https://github.com/pybind/pybind11), only support python3.x now.
 
 ## Prerequisites
 
@@ -10,15 +10,17 @@ python wrapper of [ncnn](https://github.com/Tencent/ncnn) with [pybind11](https:
 
 **On Windows**
 
-* Visual Studio 2015 (required for all Python versions, see notes below)
+* Visual Studio 2015
 * CMake >= 3.1
 
 ## Build
+1. clone [ncnn](https://github.com/Tencent/ncnn) and [pybind11](https://github.com/pybind/pybind11), build and install.
+2. change /path/to to your path and running the fllowing cmd
 ```bash
 cd /path/to/pyncnn
 mkdir build
 cd build
-cmake ..
+cmake -DCMAKE_PREFIX_PATH=/path/to/ncnn/build/install/lib/cmake/ncnn/ ..
 make
 cd pyncnn
 pip install .

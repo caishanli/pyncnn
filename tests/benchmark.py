@@ -9,7 +9,7 @@ g_blob_pool_allocator = ncnn.UnlockedPoolAllocator()
 g_workspace_pool_allocator = ncnn.PoolAllocator()
 
 def benchmark(comment, _in, opt):
-    #_in.fill(0.01)
+    _in.fill(0.01)
 
     net = ncnn.Net()
     net.opt = opt
