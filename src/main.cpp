@@ -3,9 +3,11 @@
 #include <net.h>
 #include <option.h>
 #include <blob.h>
+#include <paramdict.h>
 
 #include "pybind11_datareader.h"
 #include "pybind11_allocator.h"
+#include "pybind11_modelbin.h"
 using namespace ncnn;
 
 namespace py = pybind11;
@@ -41,6 +43,23 @@ PYBIND11_MODULE(pyncnn, m) {
 #endif // NCNN_STRING
 		.def_readwrite("producer", &Blob::producer)
 		.def_readwrite("consumers", &Blob::consumers);
+
+	py::class_<ModelBin, PyModelBin<>>(m, "ModelBin");
+	py::class_<ModelBinFromDataReader, ModelBin, PyModelBinOther<ModelBinFromDataReader>>(m, "ModelBinFromDataReader")
+		.def(py::init<const DataReader&>())
+		.def("load", &ModelBinFromDataReader::load);
+	py::class_<ModelBinFromMatArray, ModelBin, PyModelBinOther<ModelBinFromMatArray>>(m, "ModelBinFromMatArray")
+		.def(py::init<const Mat*>())
+		.def("load", &ModelBinFromMatArray::load);
+
+	py::class_<ParamDict>(m, "ParamDict")
+		.def(py::init<>())
+		.def("get", (int(ParamDict::*)(int, int) const)&ParamDict::get)
+		.def("get", (float(ParamDict::*)(int, float) const)&ParamDict::get)
+		.def("get", (Mat(ParamDict::*)(int, const Mat&) const)&ParamDict::get)
+		.def("get", (void(ParamDict::*)(int, int))&ParamDict::set)
+		.def("get", (void(ParamDict::*)(int, float))&ParamDict::set)
+		.def("get", (void(ParamDict::*)(int, const Mat&))&ParamDict::set);
 
 	py::class_<Option>(m, "Option")
 		.def(py::init<>())
