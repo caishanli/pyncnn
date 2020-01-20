@@ -81,7 +81,7 @@ if __name__ == "__main__":
     loop_count = 4
     num_threads = ncnn.get_cpu_count()
     powersave = 0
-    gpu_device = -1
+    gpu_device = 0
 
     argc = len(sys.argv)
     if argc >= 2:
@@ -137,11 +137,11 @@ if __name__ == "__main__":
     print("powersave = %d"%(ncnn.get_cpu_powersave()))
     print("gpu_device = %d"%(gpu_device))
 
-    time.sleep(15)
+    #time.sleep(15)
 
     #must use named param w, h, c due to python has no size_t(unsigned int) to call the correct overload ncnn.Mat
     benchmark("squeezenet", ncnn.Mat(w=227, h=227, c=3), opt)
-    benchmark("squeezenet_int8", ncnn.Mat(w=227, h=227, c=3), opt)
+    #benchmark("squeezenet_int8", ncnn.Mat(w=227, h=227, c=3), opt)
     benchmark("mobilenet", ncnn.Mat(w=224, h=224, c=3), opt)
     benchmark("mobilenet_int8", ncnn.Mat(w=224, h=224, c=3), opt)
     benchmark("mobilenet_v2", ncnn.Mat(w=224, h=224, c=3), opt)
@@ -151,18 +151,18 @@ if __name__ == "__main__":
     benchmark("mnasnet", ncnn.Mat(w=224, h=224, c=3), opt)
     benchmark("proxylessnasnet", ncnn.Mat(w=224, h=224, c=3), opt)
     benchmark("googlenet", ncnn.Mat(w=224, h=224, c=3), opt)
-    benchmark("googlenet_int8", ncnn.Mat(w=224, h=224, c=3), opt)
+    #benchmark("googlenet_int8", ncnn.Mat(w=224, h=224, c=3), opt)
     benchmark("resnet18", ncnn.Mat(w=224, h=224, c=3), opt)
-    benchmark("resnet18_int8", ncnn.Mat(w=224, h=224, c=3), opt)
+    #benchmark("resnet18_int8", ncnn.Mat(w=224, h=224, c=3), opt)
     benchmark("alexnet", ncnn.Mat(w=227, h=227, c=3), opt)
     benchmark("vgg16", ncnn.Mat(w=224, h=224, c=3), opt)
-    benchmark("vgg16_int8", ncnn.Mat(w=224, h=224, c=3), opt)
+    #benchmark("vgg16_int8", ncnn.Mat(w=224, h=224, c=3), opt)
     benchmark("resnet50", ncnn.Mat(w=224, h=224, c=3), opt)
-    benchmark("resnet50_int8", ncnn.Mat(w=224, h=224, c=3), opt)
+    #benchmark("resnet50_int8", ncnn.Mat(w=224, h=224, c=3), opt)
     benchmark("squeezenet_ssd", ncnn.Mat(w=300, h=300, c=3), opt)
-    benchmark("squeezenet_ssd_int8", ncnn.Mat(w=300, h=300, c=3), opt)
+    #benchmark("squeezenet_ssd_int8", ncnn.Mat(w=300, h=300, c=3), opt)
     benchmark("mobilenet_ssd", ncnn.Mat(w=300, h=300, c=3), opt)
-    benchmark("mobilenet_ssd_int8", ncnn.Mat(w=300, h=300, c=3), opt)
+    #benchmark("mobilenet_ssd_int8", ncnn.Mat(w=300, h=300, c=3), opt)
     benchmark("mobilenet_yolo", ncnn.Mat(w=416, h=416, c=3), opt)
     benchmark("mobilenetv2_yolov3", ncnn.Mat(w=352, h=352, c=3), opt)
 
