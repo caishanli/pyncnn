@@ -85,7 +85,7 @@ PYBIND11_MODULE(pyncnn, m)
         .def_readwrite("use_int8_arithmetic", &Option::use_int8_arithmetic)
         .def_readwrite("use_packing_layout", &Option::use_packing_layout);
 
-    py::class_<Mat>(m, "Mat")
+    py::class_<Mat>(m, "Mat", py::buffer_protocol())
         .def(py::init<>())
         .def(py::init<int, size_t, Allocator*>(),
             py::arg("w") = 1,
@@ -128,6 +128,69 @@ PYBIND11_MODULE(pyncnn, m)
         .def(py::init<int, int, int, void*, size_t, int, Allocator*>(),
             py::arg("w") = 1, py::arg("h") = 1, py::arg("c") = 1, py::arg("data") = nullptr,
             py::arg("elemsize") = 4, py::arg("elempack") = 1, py::arg("allocator") = nullptr)
+        .def(py::init([](py::buffer const b) {
+            py::buffer_info info = b.request();
+            if (info.ndim > 3)
+                throw std::runtime_error("Incompatible buffer dims");
+
+            printf("numpy dtype = %s\n", info.format.c_str());
+            size_t elemsize = 4u;
+            if (info.format == py::format_descriptor<float>::format() ||
+                info.format == py::format_descriptor<int>::format()) {
+                elemsize = 4u;
+            } else if (info.format == "e") {
+                elemsize = 2u;
+            } else if (info.format == py::format_descriptor<int8_t>::format() ||
+                info.format == py::format_descriptor<uint8_t>::format()) {
+                elemsize = 1u;
+            }
+
+            Mat* v = nullptr;
+            if (info.ndim == 1) {
+                v = new Mat(info.shape[1], info.shape[0], info.ptr, elemsize);
+            } else if (info.ndim == 2) {
+                v = new Mat(info.shape[1], info.shape[0], info.ptr, elemsize);
+            } else if (info.ndim == 3) {
+                v = new Mat(info.shape[2], info.shape[1], info.shape[0], info.ptr, elemsize);
+            }
+            return v;
+        }))
+        .def_buffer([](Mat &m) -> py::buffer_info {
+            std::string format;
+            if (m.elemsize == 4) {  //float or int32, so what?
+                format = py::format_descriptor<float>::format();
+            } if (m.elemsize == 2) {  
+                format = "e";
+            } if (m.elemsize == 1) {  //int8 or uint8, so what?
+                format = py::format_descriptor<int8_t>::format();
+            }
+            std::vector<ssize_t> shape;
+            std::vector<ssize_t> strides;
+            //todo strides not correct
+            if (m.dims == 1) {
+                shape.push_back(m.w);
+                strides.push_back(m.cstep);
+            } else if (m.dims == 2) {
+                shape.push_back(m.h);
+                shape.push_back(m.w);
+                strides.push_back(m.cstep);
+                strides.push_back(m.elemsize);
+            } else if (m.dims == 3) {
+                shape.push_back(m.c);
+                shape.push_back(m.h);
+                shape.push_back(m.w);
+                strides.push_back(m.cstep);
+                strides.push_back(m.elemsize);
+            }
+            return py::buffer_info(
+                m.data,                             /* Pointer to buffer */
+                m.elemsize,                      /* Size of one scalar */
+                format,                             /* Python struct-style format descriptor */
+                m.dims,                            /* Number of dimensions */
+                shape,                              /* Buffer dimensions */
+                strides                             /* Strides (in bytes) for each index */
+            );
+        })
         //todo assign
         //.def(py::self=py::self)
         .def("fill", ( void( Mat::* )( int ) )( &Mat::fill ))
