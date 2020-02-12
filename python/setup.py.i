@@ -7,8 +7,8 @@ if sys.version_info < (3,0):
 setup(
   name          = 'ncnn',
   version       = '${PACKAGE_VERSION}',
-  packages      = [ 'ncnn' ],
   url           = 'https://github.com/caishanli/pyncnn',
-  package_dir   = {'': '${CMAKE_CURRENT_BINARY_DIR}'},
-  package_data  = {'': ['ncnn${PYTHON_MODULE_PREFIX}${PYTHON_MODULE_EXTENSION}']}
+  packages      = find_packages(),
+  package_dir   = {'': '${PROJECT_SOURCE_DIR}/python'},
+  package_data  = {'ncnn': ['ncnn${PYTHON_MODULE_PREFIX}${PYTHON_MODULE_EXTENSION}']}
 )

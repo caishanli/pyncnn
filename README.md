@@ -22,7 +22,7 @@ mkdir build
 cd build
 cmake -DCMAKE_PREFIX_PATH=/path/to/ncnn/build/install/lib/cmake/ncnn/ ..
 make
-cd ncnn
+cd ../python
 pip install .
 ```
 
