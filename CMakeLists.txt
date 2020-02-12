@@ -7,6 +7,7 @@ set( PACKAGE_VERSION "0.0.1" )
 set( CMAKE_CXX_STANDARD 14 )
 set( CMAKE_CXX_STANDARD_REQUIRED ON )
 
+find_package (Python3 COMPONENTS Interpreter Development)
 find_package(ncnn CONFIG REQUIRED)
 find_package(pybind11 REQUIRED)
 
