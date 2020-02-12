@@ -5,7 +5,7 @@ if sys.version_info < (3,0):
   sys.exit('Sorry, Python < 3.0 is not supported')
 
 setup(
-  name          = 'pyncnn',
+  name          = 'ncnn',
   version       = '${PACKAGE_VERSION}',
   packages      = [ 'pyncnn' ],
   url           = 'https://github.com/caishanli/pyncnn',

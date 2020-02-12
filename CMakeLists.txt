@@ -4,7 +4,7 @@ project(pyncnn)
 
 set( PACKAGE_VERSION "0.0.1" )
 
-set( CMAKE_CXX_STANDARD 14 )
+set( CMAKE_CXX_STANDARD 11 )
 set( CMAKE_CXX_STANDARD_REQUIRED ON )
 
 find_package (Python3 COMPONENTS Interpreter Development)
@@ -18,6 +18,7 @@ endif(MSVC OR CMAKE_GENERATOR STREQUAL "Xcode")
 
 include_directories(${pybind11_INCLUDE_DIR})
 pybind11_add_module(pyncnn src/main.cpp)
+set_target_properties(pyncnn PROPERTIES OUTPUT_NAME "ncnn")
 target_link_libraries(pyncnn PUBLIC ncnn)
 set_target_properties(pyncnn PROPERTIES PREFIX "" LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/pyncnn")
 

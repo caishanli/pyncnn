@@ -13,7 +13,7 @@ using namespace ncnn;
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(pyncnn, m)
+PYBIND11_MODULE(ncnn, m)
 {
     py::class_<Allocator, PyAllocator<>>(m, "Allocator");
     py::class_<PoolAllocator, Allocator, PyAllocatorOther<PoolAllocator>>(m, "PoolAllocator")
@@ -147,11 +147,11 @@ PYBIND11_MODULE(pyncnn, m)
 
             Mat* v = nullptr;
             if (info.ndim == 1) {
-                v = new Mat(info.shape[1], info.shape[0], info.ptr, elemsize);
+                v = new Mat((int)info.shape[0], info.ptr, elemsize);
             } else if (info.ndim == 2) {
-                v = new Mat(info.shape[1], info.shape[0], info.ptr, elemsize);
+                v = new Mat((int)info.shape[1], (int)info.shape[0], info.ptr, elemsize);
             } else if (info.ndim == 3) {
-                v = new Mat(info.shape[2], info.shape[1], info.shape[0], info.ptr, elemsize);
+                v = new Mat((int)info.shape[2], (int)info.shape[1], (int)info.shape[0], info.ptr, elemsize);
             }
             return v;
         }))
