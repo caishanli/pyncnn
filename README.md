@@ -14,7 +14,7 @@ python wrapper of [ncnn](https://github.com/Tencent/ncnn) with [pybind11](https:
 * CMake >= 3.1
 
 ## Build
-1. clone [ncnn](https://github.com/Tencent/ncnn) and [pybind11](https://github.com/pybind/pybind11), build and install.
+1. clone [ncnn](https://github.com/Tencent/ncnn) and [pybind11](https://github.com/pybind/pybind11), build and install with default setting, if you change the install directory, change the cmake commond with your setting.
 2. change /path/to to your path and running the fllowing cmd
 ```bash
 cd /path/to/pyncnn
@@ -22,7 +22,7 @@ mkdir build
 cd build
 cmake -DCMAKE_PREFIX_PATH=/path/to/ncnn/build/install/lib/cmake/ncnn/ ..
 make
-cd pyncnn
+cd ncnn
 pip install .
 ```
 
@@ -37,4 +37,10 @@ python3 test.py
 ```bash
 cd /path/to/pyncnn/tests
 python3 benchmark.py
+```
+
+**benchmark gpu(build ncnn with vulkan)**
+```bash
+cd /path/to/pyncnn/tests
+python3 benchmark_gpu.py
 ```

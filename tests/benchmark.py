@@ -1,6 +1,6 @@
 import sys
 import time
-import pyncnn as ncnn
+import ncnn
 
 g_warmup_loop_count = 8
 g_loop_count = 4

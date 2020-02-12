@@ -1,6 +1,6 @@
 import sys
 import time
-import pyncnn as ncnn
+import ncnn
 
 class GlobalGpuInstance:
     def __init__(self):

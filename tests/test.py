@@ -1,5 +1,5 @@
 import time
-import pyncnn as ncnn
+import ncnn
 
 dr = ncnn.DataReaderFromEmpty()
 
