@@ -1,4 +1,6 @@
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+#include <vector>
 #include <cpu.h>
 #include <gpu.h>
 #include <net.h>
@@ -85,8 +87,8 @@ PYBIND11_MODULE(ncnn, m)
         .def_readwrite("use_int8_arithmetic", &Option::use_int8_arithmetic)
         .def_readwrite("use_packing_layout", &Option::use_packing_layout);
 
-    py::class_<Mat>(m, "Mat", py::buffer_protocol())
-        .def(py::init<>())
+    py::class_<Mat> mat(m, "Mat", py::buffer_protocol());
+    mat.def(py::init<>())
         .def(py::init<int, size_t, Allocator*>(),
             py::arg("w") = 1,
             py::arg("elemsize") = 4, py::arg("allocator") = nullptr)
@@ -133,7 +135,7 @@ PYBIND11_MODULE(ncnn, m)
             if (info.ndim > 3)
                 throw std::runtime_error("Incompatible buffer dims");
 
-            printf("numpy dtype = %s\n", info.format.c_str());
+            //printf("numpy dtype = %s\n", info.format.c_str());
             size_t elemsize = 4u;
             if (info.format == py::format_descriptor<float>::format() ||
                 info.format == py::format_descriptor<int>::format()) {
@@ -234,6 +236,7 @@ PYBIND11_MODULE(ncnn, m)
         .def("channel", ( const Mat(Mat::*)( int ) const )&Mat::channel)
         .def("row", ( float*( Mat::* )( int ) )&Mat::row)
         .def("row", ( const float*( Mat::* )( int ) const )&Mat::row)
+        .def("row", [](Mat& mat, int y) { return mat.row(y); })
         .def("channel_range", ( Mat(Mat::*)( int, int ) )&Mat::channel_range)
         .def("channel_range", ( const Mat(Mat::*)( int, int ) const )&Mat::channel_range)
         .def("row_range", ( Mat(Mat::*)( int, int ) )&Mat::row_range)
@@ -243,12 +246,27 @@ PYBIND11_MODULE(ncnn, m)
         //todo __getitem__ in python crashed
         //.def("__getitem__", [](const Mat& m, size_t i) { return m[i]; })
         //todo convenient construct from pixel data
-        //.def("from_pixels", (Mat(Mat::*)(const unsigned char*, int, int, int, Allocator*))&Mat::from_pixels)
+        .def_static("from_pixels", [](py::buffer const b, int type, int w, int h) {
+            return Mat::from_pixels((const unsigned char*)b.request().ptr, type, w, h); })
+        .def_static("from_pixels", [](py::buffer const b, int type, int w, int h, Allocator* allocator) {
+            return Mat::from_pixels((const unsigned char*)b.request().ptr, type, w, h, allocator); })
+        .def_static("from_pixels", [](py::buffer const b, int type, int w, int h, int stride) {
+        return Mat::from_pixels((const unsigned char*)b.request().ptr, type, w, h, stride); })
+        .def_static("from_pixels", [](py::buffer const b, int type, int w, int h, int stride, Allocator* allocator) {
+            return Mat::from_pixels((const unsigned char*)b.request().ptr, type, w, h, stride, allocator); })
+        .def_static("from_pixels_resize", [](py::buffer const b, int type, int w, int h, int target_width, int target_height) {
+            return Mat::from_pixels_resize((const unsigned char*)b.request().ptr, type, w, h, target_width, target_height);})
+        .def_static("from_pixels_resize", [](py::buffer const b, int type, int w, int h, int target_width, int target_height, Allocator* allocator) {
+            return Mat::from_pixels_resize((const unsigned char*)b.request().ptr, type, w, h, target_width, target_height, allocator); })
+        .def_static("from_pixels_resize", [](py::buffer const b, int type, int w, int h, int stride, int target_width, int target_height) {
+        return Mat::from_pixels_resize((const unsigned char*)b.request().ptr, type, w, h, stride, target_width, target_height); })
+        .def_static("from_pixels_resize", [](py::buffer const b, int type, int w, int h, int stride, int target_width, int target_height, Allocator* allocator) {
+            return Mat::from_pixels_resize((const unsigned char*)b.request().ptr, type, w, h, stride, target_width, target_height, allocator); })
         .def("to_pixels", ( void( Mat::* )( unsigned char*, int ) const )&Mat::to_pixels)
         .def("to_pixels", ( void( Mat::* )( unsigned char*, int, int ) const )&Mat::to_pixels)
         .def("to_pixels_resize", ( void( Mat::* )( unsigned char*, int, int, int ) const )&Mat::to_pixels_resize)
         .def("to_pixels_resize", ( void( Mat::* )( unsigned char*, int, int, int, int ) const )&Mat::to_pixels_resize)
-        .def("substract_mean_normalize", &Mat::substract_mean_normalize)
+        .def("substract_mean_normalize", [](Mat& mat, std::vector<float>& mean, std::vector<float>& norm) { return mat.substract_mean_normalize(&mean[0], &norm[0]); })
         .def("from_float16", &Mat::from_float16)
         .def_readwrite("data", &Mat::data)
         .def_readwrite("refcount", &Mat::refcount)
@@ -260,6 +278,27 @@ PYBIND11_MODULE(ncnn, m)
         .def_readwrite("h", &Mat::h)
         .def_readwrite("c", &Mat::c)
         .def_readwrite("cstep", &Mat::cstep);
+
+    py::enum_<ncnn::Mat::PixelType>(mat, "PixelType")
+        .value("PIXEL_CONVERT_SHIFT", ncnn::Mat::PixelType::PIXEL_CONVERT_SHIFT)
+        .value("PIXEL_FORMAT_MASK", ncnn::Mat::PixelType::PIXEL_FORMAT_MASK)
+        .value("PIXEL_CONVERT_MASK", ncnn::Mat::PixelType::PIXEL_CONVERT_MASK)
+        .value("PIXEL_RGB", ncnn::Mat::PixelType::PIXEL_RGB)
+        .value("PIXEL_BGR", ncnn::Mat::PixelType::PIXEL_BGR)
+        .value("PIXEL_GRAY", ncnn::Mat::PixelType::PIXEL_GRAY)
+        .value("PIXEL_RGBA", ncnn::Mat::PixelType::PIXEL_RGBA)
+        .value("PIXEL_RGB2BGR", ncnn::Mat::PixelType::PIXEL_RGB2BGR)
+        .value("PIXEL_RGB2GRAY", ncnn::Mat::PixelType::PIXEL_RGB2GRAY)
+        .value("PIXEL_RGB2RGBA", ncnn::Mat::PixelType::PIXEL_RGB2RGBA)
+        .value("PIXEL_BGR2RGB", ncnn::Mat::PixelType::PIXEL_BGR2RGB)
+        .value("PIXEL_BGR2GRAY", ncnn::Mat::PixelType::PIXEL_BGR2GRAY)
+        .value("PIXEL_BGR2RGBA", ncnn::Mat::PixelType::PIXEL_BGR2RGBA)
+        .value("PIXEL_GRAY2RGB", ncnn::Mat::PixelType::PIXEL_GRAY2RGB)
+        .value("PIXEL_GRAY2BGR", ncnn::Mat::PixelType::PIXEL_GRAY2BGR)
+        .value("PIXEL_GRAY2RGBA", ncnn::Mat::PixelType::PIXEL_GRAY2RGBA)
+        .value("PIXEL_RGBA2RGB", ncnn::Mat::PixelType::PIXEL_RGBA2RGB)
+        .value("PIXEL_RGBA2BGR", ncnn::Mat::PixelType::PIXEL_RGBA2BGR)
+        .value("PIXEL_RGBA2GRAY", ncnn::Mat::PixelType::PIXEL_RGBA2GRAY);
 
 #if NCNN_VULKAN
     py::class_<VkMat>(m, "VkMat")
@@ -472,6 +511,9 @@ PYBIND11_MODULE(ncnn, m)
     m.def("set_omp_num_threads", &set_omp_num_threads);
     m.def("get_omp_dynamic", &get_omp_dynamic);
     m.def("set_omp_dynamic", &set_omp_dynamic);
+#if !NCNN_VULKAN
+    m.def("get_gpu_count", [](){return -1;});
+#endif
 
 #if NCNN_VULKAN
     m.def("create_gpu_instance", &create_gpu_instance);
