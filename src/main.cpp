@@ -513,9 +513,13 @@ PYBIND11_MODULE(ncnn, m)
     m.def("set_omp_num_threads", &set_omp_num_threads);
     m.def("get_omp_dynamic", &get_omp_dynamic);
     m.def("set_omp_dynamic", &set_omp_dynamic);
-#if !NCNN_VULKAN
-    m.def("get_gpu_count", [](){return -1;});
+    m.def("build_with_gpu", [](){
+#if NCNN_VULKAN
+        return true;
+#else
+        return false;
 #endif
+    });
 
 #if NCNN_VULKAN
     m.def("create_gpu_instance", &create_gpu_instance);

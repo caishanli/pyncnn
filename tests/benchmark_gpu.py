@@ -92,22 +92,23 @@ if __name__ == "__main__":
         powersave = int(sys.argv[3])
     if argc >= 5:
         gpu_device = int(sys.argv[4])
+
+    if ncnn.build_with_gpu() == False:
+        print('ncnn is not build with gpu(NCNN_VULKAN), please rebuild with gpu')
+        sys.exit(0)
     
-    n = ncnn.get_gpu_count()
-    use_vulkan_compute = gpu_device != -1
 
     g_loop_count = loop_count
 
     g_blob_pool_allocator.set_size_compare_ratio(0.0)
     g_workspace_pool_allocator.set_size_compare_ratio(0.5)
 
-    if use_vulkan_compute:
-        g_warmup_loop_count = 10
+    g_warmup_loop_count = 10
 
-        g_vkdev = ncnn.get_gpu_device(gpu_device)
+    g_vkdev = ncnn.get_gpu_device(gpu_device)
 
-        g_blob_vkallocator = ncnn.VkBlobBufferAllocator(g_vkdev)
-        g_staging_vkallocator = ncnn.VkStagingBufferAllocator(g_vkdev)
+    g_blob_vkallocator = ncnn.VkBlobBufferAllocator(g_vkdev)
+    g_staging_vkallocator = ncnn.VkStagingBufferAllocator(g_vkdev)
 
     opt = ncnn.Option()
     opt.lightmode = True
@@ -120,7 +121,7 @@ if __name__ == "__main__":
     opt.use_winograd_convolution = True
     opt.use_sgemm_convolution = True
     opt.use_int8_inference = True
-    opt.use_vulkan_compute = use_vulkan_compute
+    opt.use_vulkan_compute = True
     opt.use_fp16_packed = True
     opt.use_fp16_storage = True
     opt.use_fp16_arithmetic = True

@@ -4,7 +4,7 @@ import numpy as np
 import ncnn
 
 use_gpu = False
-if ncnn.get_gpu_count() > 0:
+if ncnn.build_with_gpu():
     use_gpu = True
 
 def detect_yolov3(bgr):
@@ -40,7 +40,23 @@ def detect_yolov3(bgr):
     objects = []
 
     #printf("%d %d %d\n", mat_out.w, mat_out.h, mat_out.c)
+    
+    #method 1, use ncnn.Mat.row to get the result, no memory copy
+    for i in range(mat_out.h):
+        values = mat_out.row(i)
+
+        obj = {}
+        obj['label'] = values[0]
+        obj['prob'] = values[1]
+        obj['x'] = values[2] * img_w
+        obj['y'] = values[3] * img_h
+        obj['width'] = values[4] * img_w - obj['x']
+        obj['height'] = values[5] * img_h - obj['y']
+
+        objects.append(obj)
+    
     '''
+    #method 2, use ncnn.Mat->numpy.array to get the result, no memory copy too
     out = np.array(mat_out)
     for i in range(len(out)):
         values = out[i]
@@ -55,19 +71,11 @@ def detect_yolov3(bgr):
 
         objects.append(obj)
     '''
-    for i in range(mat_out.h):
-        values = mat_out.row(i)
-
-        obj = {}
-        obj['label'] = values[0]
-        obj['prob'] = values[1]
-        obj['x'] = values[2] * img_w
-        obj['y'] = values[3] * img_h
-        obj['width'] = values[4] * img_w - obj['x']
-        obj['height'] = values[5] * img_h - obj['y']
-
-        objects.append(obj)
     
+    # extractor need relese manually when build ncnn with vuklan,
+    # due to python relese ex after net, but in extractor.destruction use net
+    ex = None
+
     return objects
 
 def draw_objects(bgr, objects):
