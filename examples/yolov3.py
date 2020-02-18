@@ -37,10 +37,11 @@ def detect_yolov3(bgr):
     mat_out = ncnn.Mat()
     ex.extract("detection_out", mat_out)
 
-    out = np.array(mat_out)
+    objects = []
 
     #printf("%d %d %d\n", mat_out.w, mat_out.h, mat_out.c)
-    objects = []
+    '''
+    out = np.array(mat_out)
     for i in range(len(out)):
         values = out[i]
 
@@ -53,7 +54,6 @@ def detect_yolov3(bgr):
         obj['height'] = values[5] * img_h - obj['y']
 
         objects.append(obj)
-
     '''
     for i in range(mat_out.h):
         values = mat_out.row(i)
@@ -67,7 +67,7 @@ def detect_yolov3(bgr):
         obj['height'] = values[5] * img_h - obj['y']
 
         objects.append(obj)
-    '''
+    
     return objects
 
 def draw_objects(bgr, objects):
@@ -83,9 +83,6 @@ def draw_objects(bgr, objects):
     for obj in objects:
         print("%d = %.5f at %.2f %.2f %.2f x %.2f\n"%(obj['label'], obj['prob'],
                 obj['x'], obj['y'], obj['width'], obj['height']))
-
-        if obj['prob'] < 0.1:
-            continue
 
         cv2.rectangle(image, (int(obj['x']), int(obj['y'])), 
             (int(obj['x'] + obj['width']), int(obj['y'] + obj['height'])), (255, 0, 0))

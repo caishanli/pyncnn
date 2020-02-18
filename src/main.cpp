@@ -1,6 +1,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <vector>
+#include <pybind11/numpy.h>
+
 #include <cpu.h>
 #include <gpu.h>
 #include <net.h>
@@ -8,6 +9,7 @@
 #include <blob.h>
 #include <paramdict.h>
 
+#include "pybind11_mat.h"
 #include "pybind11_datareader.h"
 #include "pybind11_allocator.h"
 #include "pybind11_modelbin.h"
@@ -133,7 +135,9 @@ PYBIND11_MODULE(ncnn, m)
         .def(py::init([](py::buffer const b) {
             py::buffer_info info = b.request();
             if (info.ndim > 3)
+            {
                 throw std::runtime_error("Incompatible buffer dims");
+            }
 
             //printf("numpy dtype = %s\n", info.format.c_str());
             size_t elemsize = 4u;
@@ -158,30 +162,24 @@ PYBIND11_MODULE(ncnn, m)
             return v;
         }))
         .def_buffer([](Mat &m) -> py::buffer_info {
-            std::string format;
-            if (m.elemsize == 4) {  //float or int32, so what?
-                format = py::format_descriptor<float>::format();
-            } if (m.elemsize == 2) {  
-                format = "e";
-            } if (m.elemsize == 1) {  //int8 or uint8, so what?
-                format = py::format_descriptor<int8_t>::format();
-            }
+            std::string format = get_mat_format(m);
             std::vector<ssize_t> shape;
             std::vector<ssize_t> strides;
             //todo strides not correct
             if (m.dims == 1) {
                 shape.push_back(m.w);
-                strides.push_back(m.cstep);
+                strides.push_back(m.elemsize);
             } else if (m.dims == 2) {
                 shape.push_back(m.h);
                 shape.push_back(m.w);
-                strides.push_back(m.cstep);
+                strides.push_back(m.w * m.elemsize);
                 strides.push_back(m.elemsize);
             } else if (m.dims == 3) {
                 shape.push_back(m.c);
                 shape.push_back(m.h);
                 shape.push_back(m.w);
-                strides.push_back(m.cstep);
+                strides.push_back(m.cstep * m.elemsize);
+                strides.push_back(m.w * m.elemsize);
                 strides.push_back(m.elemsize);
             }
             return py::buffer_info(
@@ -234,9 +232,13 @@ PYBIND11_MODULE(ncnn, m)
         .def("total", &Mat::total)
         .def("channel", ( Mat(Mat::*)( int ) )&Mat::channel)
         .def("channel", ( const Mat(Mat::*)( int ) const )&Mat::channel)
-        .def("row", ( float*( Mat::* )( int ) )&Mat::row)
-        .def("row", ( const float*( Mat::* )( int ) const )&Mat::row)
-        .def("row", [](Mat& mat, int y) { return mat.row(y); })
+        .def("row", [](Mat& m, int y) {
+            if (m.elemsize != 4)
+            {
+                throw std::runtime_error("only float/int32 type mat.row support now");
+            }
+            return py::array_t<float>(m.w, m.row(y));
+        })
         .def("channel_range", ( Mat(Mat::*)( int, int ) )&Mat::channel_range)
         .def("channel_range", ( const Mat(Mat::*)( int, int ) const )&Mat::channel_range)
         .def("row_range", ( Mat(Mat::*)( int, int ) )&Mat::row_range)
@@ -245,7 +247,7 @@ PYBIND11_MODULE(ncnn, m)
         .def("range", ( const Mat(Mat::*)( int, int ) const )&Mat::range)
         //todo __getitem__ in python crashed
         //.def("__getitem__", [](const Mat& m, size_t i) { return m[i]; })
-        //todo convenient construct from pixel data
+        //convenient construct from pixel data
         .def_static("from_pixels", [](py::buffer const b, int type, int w, int h) {
             return Mat::from_pixels((const unsigned char*)b.request().ptr, type, w, h); })
         .def_static("from_pixels", [](py::buffer const b, int type, int w, int h, Allocator* allocator) {
