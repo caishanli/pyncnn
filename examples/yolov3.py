@@ -71,7 +71,7 @@ def detect_yolov3(bgr):
 
         objects.append(obj)
     '''
-    
+
     # extractor need relese manually when build ncnn with vuklan,
     # due to python relese ex after net, but in extractor.destruction use net
     ex = None
@@ -115,18 +115,17 @@ def draw_objects(bgr, objects):
     cv2.imshow("image", image)
     cv2.waitKey(0)
 
-def main():
-    #if len(sys.argv) != 2:
-    #   print("Usage: %s [imagepath]\n"%(sys.argv[0]))
-    #    return -1
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Usage: %s [imagepath]\n"%(sys.argv[0]))
+        sys.exit(0)
 
-    #imagepath = sys.argv[1]
-    imagepath = "dog.jpg"
+    imagepath = sys.argv[1]
 
     m = cv2.imread(imagepath)
     if m is None:
         print("cv2.imread %s failed\n"%(imagepath))
-        return -1
+        sys.exit(0)
 
     if use_gpu:
         ncnn.create_gpu_instance()
@@ -137,8 +136,3 @@ def main():
         ncnn.destroy_gpu_instance()
 
     draw_objects(m, objects)
-
-    return 0
-
-if __name__ == "__main__":
-    main()
