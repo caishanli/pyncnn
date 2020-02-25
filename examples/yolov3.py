@@ -2,81 +2,11 @@ import sys
 import cv2
 import numpy as np
 import ncnn
+from ncnn.model_zoo import get_model
 
 use_gpu = False
 if ncnn.build_with_gpu():
     use_gpu = True
-
-def detect_yolov3(bgr):
-    yolov3 = ncnn.Net()
-    yolov3.opt.use_vulkan_compute = use_gpu
-
-    # original pretrained model from https://github.com/eric612/MobileNet-YOLO
-    # param : https://drive.google.com/open?id=1V9oKHP6G6XvXZqhZbzNKL6FI_clRWdC-
-    # bin : https://drive.google.com/open?id=1DBcuFCr-856z3FRQznWL_S5h-Aj3RawA
-    # the ncnn model https://github.com/nihui/ncnn-assets/tree/master/models
-    yolov3.load_param("mobilenetv2_yolov3.param")
-    yolov3.load_model("mobilenetv2_yolov3.bin")
-
-    target_size = 352
-
-    img_w = bgr.shape[1]
-    img_h = bgr.shape[0]
-
-    mat_in = ncnn.Mat.from_pixels_resize(bgr, ncnn.Mat.PixelType.PIXEL_BGR, bgr.shape[1], bgr.shape[0], target_size, target_size)
-
-    mean_vals = [127.5, 127.5, 127.5]
-    norm_vals = [0.007843, 0.007843, 0.007843]
-    mat_in.substract_mean_normalize(mean_vals, norm_vals)
-
-    ex = yolov3.create_extractor()
-    ex.set_num_threads(4)
-
-    ex.input("data", mat_in)
-
-    mat_out = ncnn.Mat()
-    ex.extract("detection_out", mat_out)
-
-    objects = []
-
-    #printf("%d %d %d\n", mat_out.w, mat_out.h, mat_out.c)
-    
-    #method 1, use ncnn.Mat.row to get the result, no memory copy
-    for i in range(mat_out.h):
-        values = mat_out.row(i)
-
-        obj = {}
-        obj['label'] = values[0]
-        obj['prob'] = values[1]
-        obj['x'] = values[2] * img_w
-        obj['y'] = values[3] * img_h
-        obj['width'] = values[4] * img_w - obj['x']
-        obj['height'] = values[5] * img_h - obj['y']
-
-        objects.append(obj)
-    
-    '''
-    #method 2, use ncnn.Mat->numpy.array to get the result, no memory copy too
-    out = np.array(mat_out)
-    for i in range(len(out)):
-        values = out[i]
-
-        obj = {}
-        obj['label'] = values[0]
-        obj['prob'] = values[1]
-        obj['x'] = values[2] * img_w
-        obj['y'] = values[3] * img_h
-        obj['width'] = values[4] * img_w - obj['x']
-        obj['height'] = values[5] * img_h - obj['y']
-
-        objects.append(obj)
-    '''
-
-    # extractor need relese manually when build ncnn with vuklan,
-    # due to python relese ex after net, but in extractor.destruction use net
-    ex = None
-
-    return objects
 
 def draw_objects(bgr, objects):
     class_names = ["background",
@@ -127,12 +57,8 @@ if __name__ == "__main__":
         print("cv2.imread %s failed\n"%(imagepath))
         sys.exit(0)
 
-    if use_gpu:
-        ncnn.create_gpu_instance()
+    net = get_model('mobilenetv2_yolov3', num_threads=4, use_gpu=use_gpu)
 
-    objects = detect_yolov3(m)
-
-    if use_gpu:
-        ncnn.destroy_gpu_instance()
+    objects = net(m)
 
     draw_objects(m, objects)
