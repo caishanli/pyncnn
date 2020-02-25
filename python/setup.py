@@ -6,9 +6,9 @@ if sys.version_info < (3,0):
 
 setup(
   name          = 'ncnn',
-  version       = '${PACKAGE_VERSION}',
+  version       = '0.0.1',
   url           = 'https://github.com/caishanli/pyncnn',
   packages      = find_packages(),
-  package_dir   = {'': '${PROJECT_SOURCE_DIR}/python'},
-  package_data  = {'ncnn': ['ncnn${PYTHON_MODULE_PREFIX}${PYTHON_MODULE_EXTENSION}']}
+  package_dir   = {'': '.'},
+  package_data  = {'ncnn': ['ncnn.cp38-win_amd64.pyd']}
 )
