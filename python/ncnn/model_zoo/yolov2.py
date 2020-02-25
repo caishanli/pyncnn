@@ -1,14 +1,14 @@
 import ncnn
 from .model_store import get_model_file
 
-class MobileNetV2_YoloV3:
-    def __init__(self, img_width=352, img_height=352, num_threads=1, use_gpu=False):
+class MobileNet_YoloV2:
+    def __init__(self, img_width=416, img_height=416, num_threads=1, use_gpu=False):
         self.img_width = img_width
         self.img_height = img_height
         self.num_threads = num_threads
         self.use_gpu = use_gpu
 
-        self.mean_vals = [127.5, 127.5, 127.5]
+        self.mean_vals = [1.0, 1.0, 1.0]
         self.norm_vals = [0.007843, 0.007843, 0.007843]
 
         if self.use_gpu:
@@ -16,8 +16,8 @@ class MobileNetV2_YoloV3:
 
         self.net = ncnn.Net()
         self.net.opt.use_vulkan_compute = self.use_gpu
-        self.net.load_param(get_model_file("mobilenetv2_yolov3.param"))
-        self.net.load_model(get_model_file("mobilenetv2_yolov3.bin"))
+        self.net.load_param(get_model_file("mobilenet_yolo.param"))
+        self.net.load_model(get_model_file("mobilenet_yolo.bin"))
 
         self.ex = self.net.create_extractor()
         self.ex.set_num_threads(self.num_threads)
@@ -34,7 +34,8 @@ class MobileNetV2_YoloV3:
         img_w = img.shape[1]
 
         mat_in = ncnn.Mat.from_pixels_resize(img, ncnn.Mat.PixelType.PIXEL_BGR, img.shape[1], img.shape[0], self.img_width, self.img_height)
-        mat_in.substract_mean_normalize(self.mean_vals, self.norm_vals)
+        mat_in.substract_mean_normalize([], self.norm_vals)
+        mat_in.substract_mean_normalize(self.mean_vals, [])
 
         self.ex.input("data", mat_in)
 
@@ -58,7 +59,7 @@ class MobileNetV2_YoloV3:
             obj['height'] = values[5] * img_h - obj['y']
 
             objects.append(obj)
-
+            
         '''
         #method 2, use ncnn.Mat->numpy.array to get the result, no memory copy too
         out = np.array(mat_out)

@@ -11,6 +11,8 @@ import portalocker
 from ..utils import download, check_sha1
 
 _model_sha1 = {name: checksum for checksum, name in [
+    ('4ff279e78cdb0b8bbc9363181df6f094ad46dc36', 'mobilenet_yolo.param'),
+    ('1528cf08b9823fc01aaebfc932ec8c8d4a3b1613', 'mobilenet_yolo.bin'),
     ('3f5b78b0c982f8bdf3a2c3a27e6136d4d2680e96', 'mobilenetv2_yolov3.param'),
     ('0705b0f8fe5a77718561b9b7d6ed4f33fcd3d455', 'mobilenetv2_yolov3.bin'),
 ]}
@@ -63,7 +65,7 @@ def get_model_file(name, tag=None, root=os.path.join('~', '.ncnn', 'models')):
     if not os.path.exists(root):
         os.makedirs(root)
 
-    with portalocker.Lock(lockfile, timeout=int(os.environ.get('GLUON_MODEL_LOCK_TIMEOUT', 300))):
+    with portalocker.Lock(lockfile, timeout=int(os.environ.get('NCNN_MODEL_LOCK_TIMEOUT', 300))):
         if os.path.exists(params_path):
             if check_sha1(params_path, sha1_hash):
                 return params_path
@@ -74,7 +76,7 @@ def get_model_file(name, tag=None, root=os.path.join('~', '.ncnn', 'models')):
             logging.info('Model file not found. Downloading.')
 
         zip_file_path = os.path.join(root, file_name)
-        repo_url = os.environ.get('MXNET_GLUON_REPO', apache_repo_url)
+        repo_url = os.environ.get('NCNN_REPO', apache_repo_url)
         if repo_url[-1] != '/':
             repo_url = repo_url + '/'
         download(_url_format.format(repo_url=repo_url, file_name=file_name),
@@ -95,12 +97,12 @@ def get_model_file(name, tag=None, root=os.path.join('~', '.ncnn', 'models')):
             raise ValueError('Downloaded file has different hash. Please try again.')
 
 
-def purge(root=os.path.join('~', '.mxnet', 'models')):
+def purge(root=os.path.join('~', '.ncnn', 'models')):
     r"""Purge all pretrained model files in local file store.
 
     Parameters
     ----------
-    root : str, default '~/.mxnet/models'
+    root : str, default '~/.ncnn/models'
         Location for keeping the model parameters.
     """
     root = os.path.expanduser(root)

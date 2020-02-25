@@ -268,7 +268,10 @@ PYBIND11_MODULE(ncnn, m)
         .def("to_pixels", ( void( Mat::* )( unsigned char*, int, int ) const )&Mat::to_pixels)
         .def("to_pixels_resize", ( void( Mat::* )( unsigned char*, int, int, int ) const )&Mat::to_pixels_resize)
         .def("to_pixels_resize", ( void( Mat::* )( unsigned char*, int, int, int, int ) const )&Mat::to_pixels_resize)
-        .def("substract_mean_normalize", [](Mat& mat, std::vector<float>& mean, std::vector<float>& norm) { return mat.substract_mean_normalize(&mean[0], &norm[0]); })
+        .def("substract_mean_normalize", [](Mat& mat, std::vector<float>& mean, std::vector<float>& norm) 
+            { 
+                return mat.substract_mean_normalize(mean.size() > 0 ? &mean[0] : 0, norm.size() > 0 ? &norm[0] : 0); 
+            })
         .def("from_float16", &Mat::from_float16)
         .def_readwrite("data", &Mat::data)
         .def_readwrite("refcount", &Mat::refcount)
