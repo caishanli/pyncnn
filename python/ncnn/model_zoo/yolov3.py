@@ -11,9 +11,6 @@ class MobileNetV2_YoloV3:
         self.mean_vals = [127.5, 127.5, 127.5]
         self.norm_vals = [0.007843, 0.007843, 0.007843]
 
-        if self.use_gpu:
-            ncnn.create_gpu_instance()
-
         self.net = ncnn.Net()
         self.net.opt.use_vulkan_compute = self.use_gpu
         self.net.load_param(get_model_file("mobilenetv2_yolov3.param"))
@@ -25,9 +22,6 @@ class MobileNetV2_YoloV3:
     def __del__(self):
         self.ex = None
         self.net = None
-
-        if self.use_gpu:
-            ncnn.destroy_gpu_instance()
 
     def __call__(self, img):
         img_h = img.shape[0]

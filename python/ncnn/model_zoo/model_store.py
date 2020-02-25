@@ -15,6 +15,8 @@ _model_sha1 = {name: checksum for checksum, name in [
     ('1528cf08b9823fc01aaebfc932ec8c8d4a3b1613', 'mobilenet_yolo.bin'),
     ('3f5b78b0c982f8bdf3a2c3a27e6136d4d2680e96', 'mobilenetv2_yolov3.param'),
     ('0705b0f8fe5a77718561b9b7d6ed4f33fcd3d455', 'mobilenetv2_yolov3.bin'),
+    ('3723ce3e312db6a102cff1a5c39dae80e1de658e', 'mobilenet_ssd_voc_ncnn.param'),
+    ('8e2d2139550dcbee1ce5e200b7697b25aab29656', 'mobilenet_ssd_voc_ncnn.bin'),
 ]}
 
 apache_repo_url = 'https://github.com/nihui/ncnn-assets/raw/master/models/'

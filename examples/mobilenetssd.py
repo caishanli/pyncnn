@@ -60,7 +60,7 @@ if __name__ == "__main__":
     if use_gpu:
         ncnn.create_gpu_instance()
 
-    net = get_model('mobilenetv2_yolov3', num_threads=4, use_gpu=use_gpu)
+    net = get_model('mobilenet_ssd', num_threads=4, use_gpu=use_gpu)
 
     objects = net(m)
 

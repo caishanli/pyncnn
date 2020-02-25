@@ -1,11 +1,13 @@
 from .yolov2 import MobileNet_YoloV2
 from .yolov3 import MobileNetV2_YoloV3
+from .mobilenetssd import MobileNet_SSD
 
 __all__ = ['get_model', 'get_model_list']
 
 _models = { 
             'mobilenet_yolov2': MobileNet_YoloV2,
             'mobilenetv2_yolov3': MobileNetV2_YoloV3, 
+            'mobilenet_ssd': MobileNet_SSD, 
         }
 
 def get_model(name, **kwargs):

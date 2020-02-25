@@ -57,8 +57,14 @@ if __name__ == "__main__":
         print("cv2.imread %s failed\n"%(imagepath))
         sys.exit(0)
 
+    if use_gpu:
+        ncnn.create_gpu_instance()
+
     net = get_model('mobilenet_yolov2', num_threads=4, use_gpu=use_gpu)
 
     objects = net(m)
 
+    if use_gpu:
+        ncnn.destroy_gpu_instance()
+        
     draw_objects(m, objects)
