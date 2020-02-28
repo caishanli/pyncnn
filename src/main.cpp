@@ -1,6 +1,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/numpy.h>
+#include <pybind11/functional.h>
 
 #include <cpu.h>
 #include <gpu.h>
@@ -13,9 +14,16 @@
 #include "pybind11_datareader.h"
 #include "pybind11_allocator.h"
 #include "pybind11_modelbin.h"
+#include "pybind11_layer.h"
 using namespace ncnn;
 
 namespace py = pybind11;
+
+static std::function<LayerImpl*( )> g_layer_creator = nullptr;
+ncnn::Layer* LayerCreator()
+{
+    return new ::Layer(g_layer_creator);
+}
 
 PYBIND11_MODULE(ncnn, m)
 {
@@ -475,6 +483,34 @@ PYBIND11_MODULE(ncnn, m)
 #endif // NCNN_VULKAN
         ;
 
+    py::class_<LayerImpl, PyLayer>(m, "Layer")
+        .def(py::init<>())
+        .def("load_param", &LayerImpl::load_param)
+        .def("load_model", &LayerImpl::load_model)
+        .def("create_pipeline", &LayerImpl::create_pipeline)
+        .def("destroy_pipeline", &LayerImpl::destroy_pipeline)
+        .def_readwrite("one_blob_only", &LayerImpl::one_blob_only)
+        .def_readwrite("support_inplace", &LayerImpl::support_inplace)
+        .def_readwrite("support_vulkan", &LayerImpl::support_vulkan)
+        .def_readwrite("support_packing", &LayerImpl::support_packing)
+        .def("forward", ( int( LayerImpl::*)( const std::vector<Mat>&, std::vector<Mat>&, const Option& ) const )&LayerImpl::forward)
+        .def("forward", ( int( LayerImpl::* )( const Mat&, Mat&, const Option& ) const )&LayerImpl::forward)
+        .def("forward_inplace", ( int( LayerImpl::* )( std::vector<Mat>&, const Option& ) const )&LayerImpl::forward_inplace)
+        .def("forward_inplace", ( int( LayerImpl::* )( Mat&, const Option& ) const )&LayerImpl::forward_inplace)
+#if NCNN_VULKAN
+        .def("upload_model", &LayerImpl::upload_model)
+        .def("forward", ( int( LayerImpl::* )( const std::vector<VkMat>&, std::vector<VkMat>&, VkCompute&, const Option& ) const )&LayerImpl::forward)
+        .def("forward", ( int( LayerImpl::* )( const VkMat&, VkMat&, VkCompute& cmd, const Option& ) const )&LayerImpl::forward)
+        .def("forward_inplace", ( int( LayerImpl::* )( std::vector<VkMat>&, VkCompute&, const Option& ) const )&LayerImpl::forward_inplace)
+        .def("forward_inplace", ( int( LayerImpl::* )( VkMat&, VkCompute&, const Option& ) const )&LayerImpl::forward_inplace)
+#endif // NCNN_VULKAN
+        .def_readwrite("typeindex", &LayerImpl::typeindex)
+        .def_readwrite("type", &LayerImpl::type)
+        .def_readwrite("name", &LayerImpl::name)
+        .def_readwrite("bottoms", &LayerImpl::bottoms)
+        .def_readwrite("tops", &LayerImpl::tops)
+        ;
+
     py::class_<Net>(m, "Net")
         .def(py::init<>())
         .def_readwrite("opt", &Net::opt)
@@ -483,7 +519,14 @@ PYBIND11_MODULE(ncnn, m)
         .def("set_vulkan_device", ( void( Net::* )( const VulkanDevice* ) )&Net::set_vulkan_device)
         .def("vulkan_device", &Net::vulkan_device)
 #endif // NCNN_VULKAN
-        //tode register_custom_layer
+#if NCNN_STRING
+        .def("register_custom_layer", [](Net& net, const char* type, const std::function<::LayerImpl*()>& creator)
+        {
+            g_layer_creator = creator;
+            return net.register_custom_layer(type, LayerCreator);
+        })
+#endif //NCNN_STRING
+        .def("register_custom_layer", ( int( Net::* )( int, layer_creator_func ) )&Net::register_custom_layer)
 #if NCNN_STRING
         .def("load_param", ( int( Net::* )( const DataReader& ) )&Net::load_param)
 #endif // NCNN_STRING
