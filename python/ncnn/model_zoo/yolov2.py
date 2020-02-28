@@ -19,6 +19,13 @@ class MobileNet_YoloV2:
         self.ex = self.net.create_extractor()
         self.ex.set_num_threads(self.num_threads)
 
+        self.class_names = ["background",
+            "aeroplane", "bicycle", "bird", "boat",
+            "bottle", "bus", "car", "cat", "chair",
+            "cow", "diningtable", "dog", "horse",
+            "motorbike", "person", "pottedplant",
+            "sheep", "sofa", "train", "tvmonitor"]
+
     def __del__(self):
         self.ex = None
         self.net = None

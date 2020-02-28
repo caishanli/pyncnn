@@ -24,11 +24,11 @@ if __name__ == "__main__":
     if use_gpu:
         ncnn.create_gpu_instance()
 
-    net = get_model('mobilenet_ssd', num_threads=4, use_gpu=use_gpu)
+    net = get_model('mobilenetv3_ssdlite', num_threads=4, use_gpu=use_gpu)
 
     objects = net(m)
 
     if use_gpu:
         ncnn.destroy_gpu_instance()
 
-    draw_detection_objects(m, net.class_names, objects)
+    draw_detection_objects(m, net.class_names, objects, 0.6)

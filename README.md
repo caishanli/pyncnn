@@ -15,7 +15,7 @@ python wrapper of [ncnn](https://github.com/Tencent/ncnn) with [pybind11](https:
 
 ## Build
 1. clone [ncnn](https://github.com/Tencent/ncnn) and [pybind11](https://github.com/pybind/pybind11), build and install with default setting, if you change the install directory, change the cmake commond with your setting.
-2. change /path/to to your path and running the fllowing cmd
+2. change /path/to to your path and running the following cmd
 ```bash
 cd /path/to/pyncnn
 mkdir build

@@ -27,6 +27,13 @@ class MobileNetV2_SSDLite:
         self.ex.set_light_mode(True)
         self.ex.set_num_threads(self.num_threads)
 
+        self.class_names = ["background",
+            "aeroplane", "bicycle", "bird", "boat",
+            "bottle", "bus", "car", "cat", "chair",
+            "cow", "diningtable", "dog", "horse",
+            "motorbike", "person", "pottedplant",
+            "sheep", "sofa", "train", "tvmonitor"]
+            
     def __del__(self):
         self.ex = None
         self.net = None
