@@ -148,7 +148,11 @@ PYBIND11_MODULE(ncnn, m)
             }
 
             //printf("numpy dtype = %s\n", info.format.c_str());
-            size_t elemsize = 4u;
+            size_t elemsize = 4u; 
+            if (info.format == py::format_descriptor<double>::format())
+            {
+                elemsize = 8u;
+            }
             if (info.format == py::format_descriptor<float>::format() ||
                 info.format == py::format_descriptor<int>::format()) {
                 elemsize = 4u;
@@ -253,8 +257,8 @@ PYBIND11_MODULE(ncnn, m)
         .def("row_range", ( const Mat(Mat::*)( int, int ) const )&Mat::row_range)
         .def("range", ( Mat(Mat::*)( int, int ) )&Mat::range)
         .def("range", ( const Mat(Mat::*)( int, int ) const )&Mat::range)
-        //todo __getitem__ in python crashed
-        //.def("__getitem__", [](const Mat& m, size_t i) { return m[i]; })
+        .def("__getitem__", [](const Mat& m, size_t i) { return m[i]; })
+        .def("__setitem__", [](Mat& m, size_t i, float v) { m[i] = v; })
         //convenient construct from pixel data
         .def_static("from_pixels", [](py::buffer const b, int type, int w, int h) {
             return Mat::from_pixels((const unsigned char*)b.request().ptr, type, w, h); })
@@ -290,7 +294,17 @@ PYBIND11_MODULE(ncnn, m)
         .def_readwrite("w", &Mat::w)
         .def_readwrite("h", &Mat::h)
         .def_readwrite("c", &Mat::c)
-        .def_readwrite("cstep", &Mat::cstep);
+        .def_readwrite("cstep", &Mat::cstep)
+        .def("__repr__",
+            [](const Mat& m)
+            {
+                char buf[256] = { 0 };
+                sprintf(buf, "<ncnn.Mat w=%d h=%d c=%d dims=%d cstep=%d elemsize=%d elempack=%d\n\trefcount=%d data=0x%x allocator=0x%x>",
+                    m.w, m.h, m.c, m.dims, m.cstep, m.elemsize, m.elempack, m.refcount ? *m.refcount : 0, m.data, m.allocator);
+                return std::string(buf);
+            }
+        )
+        ;
 
     py::enum_<ncnn::Mat::PixelType>(mat, "PixelType")
         .value("PIXEL_CONVERT_SHIFT", ncnn::Mat::PixelType::PIXEL_CONVERT_SHIFT)

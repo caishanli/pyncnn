@@ -16,9 +16,6 @@ class MobileNet_SSD:
         self.net.load_param(get_model_file("mobilenet_ssd_voc_ncnn.param"))
         self.net.load_model(get_model_file("mobilenet_ssd_voc_ncnn.bin"))
 
-        self.ex = self.net.create_extractor()
-        self.ex.set_num_threads(self.num_threads)
-
         self.class_names = ["background",
             "aeroplane", "bicycle", "bird", "boat",
             "bottle", "bus", "car", "cat", "chair",
@@ -27,7 +24,6 @@ class MobileNet_SSD:
             "sheep", "sofa", "train", "tvmonitor"]
             
     def __del__(self):
-        self.ex = None
         self.net = None
 
     def __call__(self, img):
@@ -37,10 +33,13 @@ class MobileNet_SSD:
         mat_in = ncnn.Mat.from_pixels_resize(img, ncnn.Mat.PixelType.PIXEL_BGR, img.shape[1], img.shape[0], self.img_width, self.img_height)
         mat_in.substract_mean_normalize(self.mean_vals, self.norm_vals)
 
-        self.ex.input("data", mat_in)
+        ex = self.net.create_extractor()
+        ex.set_num_threads(self.num_threads)
+
+        ex.input("data", mat_in)
 
         mat_out = ncnn.Mat()
-        self.ex.extract("detection_out", mat_out)
+        ex.extract("detection_out", mat_out)
 
         objects = []
 
@@ -55,8 +54,8 @@ class MobileNet_SSD:
             obj['prob'] = values[1]
             obj['x'] = values[2] * img_w
             obj['y'] = values[3] * img_h
-            obj['width'] = values[4] * img_w - obj['x']
-            obj['height'] = values[5] * img_h - obj['y']
+            obj['w'] = values[4] * img_w - obj['x']
+            obj['h'] = values[5] * img_h - obj['y']
 
             objects.append(obj)
 
@@ -70,8 +69,8 @@ class MobileNet_SSD:
             obj['prob'] = values[1]
             obj['x'] = values[2] * img_w
             obj['y'] = values[3] * img_h
-            obj['width'] = values[4] * img_w - obj['x']
-            obj['height'] = values[5] * img_h - obj['y']
+            obj['w'] = values[4] * img_w - obj['x']
+            obj['h'] = values[5] * img_h - obj['y']
             objects.append(obj)
         '''
 

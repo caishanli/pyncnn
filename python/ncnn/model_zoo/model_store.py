@@ -25,6 +25,8 @@ _model_sha1 = {name: checksum for checksum, name in [
     ('908f63ca9bff0061a499512664b9c533a0b7f485', 'mobilenetv3_ssdlite_voc.bin'),
     ('a63d779a1f789af976bc4e2eae86fdd9b0bb6c2c', 'squeezenet_v1.1.param'),
     ('262f0e33e37aeac69021b5a3556664be65fc0aeb', 'squeezenet_v1.1.bin'),
+    ('3ba57cccd1d4a583f6eb76eae25a2dbda7ce7f74', 'ZF_faster_rcnn_final.param'),
+    ('1095fbb5f846a1f311b40941add5fef691acaf8d', 'ZF_faster_rcnn_final.bin'),
 ]}
 
 apache_repo_url = 'https://github.com/nihui/ncnn-assets/raw/master/models/'
@@ -64,6 +66,7 @@ def get_model_file(name, tag=None, root=os.path.join('~', '.ncnn', 'models')):
                                                  short_hash=tag)
     else:
         file_name = '{name}'.format(name=name)
+
     root = os.path.expanduser(root)
     params_path = os.path.join(root, file_name)
     lockfile = os.path.join(root, file_name + '.lock')

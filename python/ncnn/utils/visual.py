@@ -7,10 +7,10 @@ def draw_detection_objects(image, class_names, objects, min_prob=0.0):
             continue
         
         print("%d = %.5f at %.2f %.2f %.2f x %.2f\n"%(obj['label'], obj['prob'],
-                obj['x'], obj['y'], obj['width'], obj['height']))
+                obj['x'], obj['y'], obj['w'], obj['h']))
 
         cv2.rectangle(image, (int(obj['x']), int(obj['y'])), 
-            (int(obj['x'] + obj['width']), int(obj['y'] + obj['height'])), (255, 0, 0))
+            (int(obj['x'] + obj['w']), int(obj['y'] + obj['h'])), (255, 0, 0))
         
         text = "%s %.1f%%"%(class_names[int(obj['label'])], obj['prob'] * 100)
 

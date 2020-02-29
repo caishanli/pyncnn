@@ -16,12 +16,8 @@ class SqueezeNet:
         self.net.opt.use_vulkan_compute = self.use_gpu
         self.net.load_param(get_model_file("squeezenet_v1.1.param"))
         self.net.load_model(get_model_file("squeezenet_v1.1.bin"))
-
-        self.ex = self.net.create_extractor()
-        self.ex.set_num_threads(self.num_threads)
             
     def __del__(self):
-        self.ex = None
         self.net = None
 
     def __call__(self, img):
@@ -31,10 +27,13 @@ class SqueezeNet:
         mat_in = ncnn.Mat.from_pixels_resize(img, ncnn.Mat.PixelType.PIXEL_BGR, img.shape[1], img.shape[0], self.img_width, self.img_height)
         mat_in.substract_mean_normalize(self.mean_vals, self.norm_vals)
 
-        self.ex.input("data", mat_in)
+        ex = self.net.create_extractor()
+        ex.set_num_threads(self.num_threads)
+
+        ex.input("data", mat_in)
 
         mat_out = ncnn.Mat()
-        self.ex.extract("prob", mat_out)
+        ex.extract("prob", mat_out)
 
         #printf("%d %d %d\n", mat_out.w, mat_out.h, mat_out.c)
         

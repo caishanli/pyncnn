@@ -25,10 +25,6 @@ class MobileNetV3_SSDLite:
         self.net.load_param(get_model_file("mobilenetv3_ssdlite_voc.param"))
         self.net.load_model(get_model_file("mobilenetv3_ssdlite_voc.bin"))
 
-        self.ex = self.net.create_extractor()
-        self.ex.set_light_mode(True)
-        self.ex.set_num_threads(self.num_threads)
-
         self.class_names = ["background",
             "aeroplane", "bicycle", "bird", "boat",
             "bottle", "bus", "car", "cat", "chair",
@@ -37,7 +33,6 @@ class MobileNetV3_SSDLite:
             "sheep", "sofa", "train", "tvmonitor"]
 
     def __del__(self):
-        self.ex = None
         self.net = None
 
     def __call__(self, img):
@@ -48,10 +43,14 @@ class MobileNetV3_SSDLite:
         mat_in.substract_mean_normalize([], self.norm_vals)
         mat_in.substract_mean_normalize(self.mean_vals, [])
 
-        self.ex.input("input", mat_in)
+        ex = self.net.create_extractor()
+        ex.set_light_mode(True)
+        ex.set_num_threads(self.num_threads)
+
+        ex.input("input", mat_in)
 
         mat_out = ncnn.Mat()
-        self.ex.extract("detection_out", mat_out)
+        ex.extract("detection_out", mat_out)
 
         objects = []
 
@@ -75,8 +74,8 @@ class MobileNetV3_SSDLite:
 
             obj['x'] = x1
             obj['y'] = y1
-            obj['width'] = x2 - x1
-            obj['height'] = y2 - y1
+            obj['w'] = x2 - x1
+            obj['h'] = y2 - y1
 
             objects.append(obj)
             
@@ -96,8 +95,8 @@ class MobileNetV3_SSDLite:
 
             obj['x'] = x1
             obj['y'] = y1
-            obj['width'] = x2 - x1
-            obj['height'] = y2 - y1
+            obj['w'] = x2 - x1
+            obj['h'] = y2 - y1
 
             objects.append(obj)
         '''

@@ -23,10 +23,6 @@ class MobileNetV2_SSDLite:
         self.net.load_param(get_model_file("mobilenetv2_ssdlite_voc.param"))
         self.net.load_model(get_model_file("mobilenetv2_ssdlite_voc.bin"))
 
-        self.ex = self.net.create_extractor()
-        self.ex.set_light_mode(True)
-        self.ex.set_num_threads(self.num_threads)
-
         self.class_names = ["background",
             "aeroplane", "bicycle", "bird", "boat",
             "bottle", "bus", "car", "cat", "chair",
@@ -35,7 +31,6 @@ class MobileNetV2_SSDLite:
             "sheep", "sofa", "train", "tvmonitor"]
             
     def __del__(self):
-        self.ex = None
         self.net = None
 
     def __call__(self, img):
@@ -45,10 +40,14 @@ class MobileNetV2_SSDLite:
         mat_in = ncnn.Mat.from_pixels_resize(img, ncnn.Mat.PixelType.PIXEL_BGR, img_w, img_h, self.img_width, self.img_height)
         mat_in.substract_mean_normalize(self.mean_vals, self.norm_vals)
 
-        self.ex.input("data", mat_in)
+        ex = self.net.create_extractor()
+        ex.set_light_mode(True)
+        ex.set_num_threads(self.num_threads)
+
+        ex.input("data", mat_in)
 
         mat_out = ncnn.Mat()
-        self.ex.extract("detection_out", mat_out)
+        ex.extract("detection_out", mat_out)
 
         objects = []
 
@@ -63,8 +62,8 @@ class MobileNetV2_SSDLite:
             obj['prob'] = values[1]
             obj['x'] = values[2] * img_w
             obj['y'] = values[3] * img_h
-            obj['width'] = values[4] * img_w - obj['x']
-            obj['height'] = values[5] * img_h - obj['y']
+            obj['w'] = values[4] * img_w - obj['x']
+            obj['h'] = values[5] * img_h - obj['y']
 
             objects.append(obj)
             
@@ -78,8 +77,8 @@ class MobileNetV2_SSDLite:
             obj['prob'] = values[1]
             obj['x'] = values[2] * img_w
             obj['y'] = values[3] * img_h
-            obj['width'] = values[4] * img_w - obj['x']
-            obj['height'] = values[5] * img_h - obj['y']
+            obj['w'] = values[4] * img_w - obj['x']
+            obj['h'] = values[5] * img_h - obj['y']
             objects.append(obj)
         '''
 
