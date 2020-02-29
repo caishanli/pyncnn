@@ -28,13 +28,7 @@ if __name__ == "__main__":
 
     objects = net(m)
 
-    draw_detection_objects(m, net.class_names, objects)
-
-    m = cv2.imread('d:/1.jpg')
-
-    objects = net(m)
-
-    draw_detection_objects(m, net.class_names, objects)
-
     if use_gpu:
         ncnn.destroy_gpu_instance()
+
+    draw_detection_objects(m, net.class_names, objects)
