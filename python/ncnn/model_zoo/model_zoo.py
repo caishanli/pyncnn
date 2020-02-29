@@ -1,6 +1,7 @@
 from .yolov2 import MobileNet_YoloV2
 from .yolov3 import MobileNetV2_YoloV3
 from .mobilenetssd import MobileNet_SSD
+from .squeezenetssd import SqueezeNet_SSD
 from .mobilenetv2ssdlite import MobileNetV2_SSDLite
 from .mobilenetv3ssdlite import MobileNetV3_SSDLite
 from .squeezenet import SqueezeNet
@@ -11,6 +12,7 @@ _models = {
             'mobilenet_yolov2': MobileNet_YoloV2,
             'mobilenetv2_yolov3': MobileNetV2_YoloV3, 
             'mobilenet_ssd': MobileNet_SSD, 
+            'squeezenet_ssd': SqueezeNet_SSD, 
             'mobilenetv2_ssdlite': MobileNetV2_SSDLite, 
             'mobilenetv3_ssdlite': MobileNetV3_SSDLite, 
             'squeezenet' : SqueezeNet

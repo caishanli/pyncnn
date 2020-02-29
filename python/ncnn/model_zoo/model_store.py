@@ -17,6 +17,8 @@ _model_sha1 = {name: checksum for checksum, name in [
     ('0705b0f8fe5a77718561b9b7d6ed4f33fcd3d455', 'mobilenetv2_yolov3.bin'),
     ('3723ce3e312db6a102cff1a5c39dae80e1de658e', 'mobilenet_ssd_voc_ncnn.param'),
     ('8e2d2139550dcbee1ce5e200b7697b25aab29656', 'mobilenet_ssd_voc_ncnn.bin'),
+    ('52c669821dc32ef5b7ab30749fa71a3bc27786b8', 'squeezenet_ssd_voc.param'),
+    ('347e31d1cbe469259fa8305860a7c24a95039202', 'squeezenet_ssd_voc.bin'),
     ('52dab628ecac8137e61ce3aea1a912f9c5a0a638', 'mobilenetv2_ssdlite_voc.param'),
     ('9fea06f74f7c60d753cf703ea992f92e50a986d4', 'mobilenetv2_ssdlite_voc.bin'),
     ('f36661eff1eda1e36185e7f2f28fc722ad8b66bb', 'mobilenetv3_ssdlite_voc.param'),
