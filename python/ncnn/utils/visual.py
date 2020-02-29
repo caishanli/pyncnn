@@ -1,3 +1,4 @@
+import numpy as np
 import cv2
 
 def draw_detection_objects(image, class_names, objects, min_prob=0.0):
@@ -30,3 +31,10 @@ def draw_detection_objects(image, class_names, objects, min_prob=0.0):
 
     cv2.imshow("image", image)
     cv2.waitKey(0)
+
+def print_topk(cls_scores, topk):
+    indexes = np.argsort(cls_scores)[::-1][0:topk]
+    scores = cls_scores[indexes]
+
+    for index, score in zip(indexes, scores):
+        print("%d=%f"%(index, score))

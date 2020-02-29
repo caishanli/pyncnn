@@ -21,6 +21,8 @@ _model_sha1 = {name: checksum for checksum, name in [
     ('9fea06f74f7c60d753cf703ea992f92e50a986d4', 'mobilenetv2_ssdlite_voc.bin'),
     ('f36661eff1eda1e36185e7f2f28fc722ad8b66bb', 'mobilenetv3_ssdlite_voc.param'),
     ('908f63ca9bff0061a499512664b9c533a0b7f485', 'mobilenetv3_ssdlite_voc.bin'),
+    ('a63d779a1f789af976bc4e2eae86fdd9b0bb6c2c', 'squeezenet_v1.1.param'),
+    ('262f0e33e37aeac69021b5a3556664be65fc0aeb', 'squeezenet_v1.1.bin'),
 ]}
 
 apache_repo_url = 'https://github.com/nihui/ncnn-assets/raw/master/models/'
