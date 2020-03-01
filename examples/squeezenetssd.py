@@ -31,4 +31,4 @@ if __name__ == "__main__":
     if use_gpu:
         ncnn.destroy_gpu_instance()
 
-    draw_detection_objects(m, net.class_names, objects)
+    draw_detection_objects(m, net.class_names, objects) 

@@ -13,6 +13,11 @@ class MobileNetV2_YoloV3:
 
         self.net = ncnn.Net()
         self.net.opt.use_vulkan_compute = self.use_gpu
+
+        # original pretrained model from https://github.com/eric612/MobileNet-YOLO
+        # param : https://drive.google.com/open?id=1V9oKHP6G6XvXZqhZbzNKL6FI_clRWdC-
+        # bin : https://drive.google.com/open?id=1DBcuFCr-856z3FRQznWL_S5h-Aj3RawA
+        # the ncnn model https://github.com/caishanli/pyncnn-assets/tree/master/models
         self.net.load_param(get_model_file("mobilenetv2_yolov3.param"))
         self.net.load_model(get_model_file("mobilenetv2_yolov3.bin"))
         

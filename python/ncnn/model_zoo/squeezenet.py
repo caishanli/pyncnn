@@ -14,6 +14,8 @@ class SqueezeNet:
 
         self.net = ncnn.Net()
         self.net.opt.use_vulkan_compute = self.use_gpu
+        
+        # the ncnn model https://github.com/caishanli/pyncnn-assets/tree/master/models
         self.net.load_param(get_model_file("squeezenet_v1.1.param"))
         self.net.load_model(get_model_file("squeezenet_v1.1.bin"))
             

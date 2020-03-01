@@ -27,9 +27,11 @@ _model_sha1 = {name: checksum for checksum, name in [
     ('262f0e33e37aeac69021b5a3556664be65fc0aeb', 'squeezenet_v1.1.bin'),
     ('3ba57cccd1d4a583f6eb76eae25a2dbda7ce7f74', 'ZF_faster_rcnn_final.param'),
     ('1095fbb5f846a1f311b40941add5fef691acaf8d', 'ZF_faster_rcnn_final.bin'),
+    ('3586ec3d663b1cc8ec8c662768caa9c7fbcf4fdc', 'pelee.param'),
+    ('2442ad483dc546940271591b86db0d9c8b1c7118', 'pelee.bin'),
 ]}
 
-apache_repo_url = 'https://github.com/nihui/ncnn-assets/raw/master/models/'
+apache_repo_url = 'https://github.com/caishanli/pyncnn-assets/raw/master/models/'
 _url_format = '{repo_url}{file_name}'
 
 

@@ -19,6 +19,7 @@ using namespace ncnn;
 
 namespace py = pybind11;
 
+// todo multi custom layer need multi g_layer_creator, but now only one???
 static std::function<LayerImpl*( )> g_layer_creator = nullptr;
 ncnn::Layer* LayerCreator()
 {
@@ -563,6 +564,10 @@ PYBIND11_MODULE(ncnn, m)
         .def("clear", &Net::clear)
         .def("create_extractor", &Net::create_extractor);
 
+    py::enum_<ncnn::BorderType>(m, "BorderType")
+        .value("BORDER_CONSTANT", ncnn::BorderType::BORDER_CONSTANT)
+        .value("BORDER_REPLICATE", ncnn::BorderType::BORDER_REPLICATE);
+
     m.def("cpu_support_arm_neon", &cpu_support_arm_neon);
     m.def("cpu_support_arm_vfpv4", &cpu_support_arm_vfpv4);
     m.def("cpu_support_arm_asimdhp", &cpu_support_arm_asimdhp);
@@ -579,6 +584,174 @@ PYBIND11_MODULE(ncnn, m)
 #else
         return false;
 #endif
+    });
+#if NCNN_PIXEL
+    m.def("yuv420sp2rgb", [](py::buffer const yuv420sp, int w, int h, py::buffer rgb)
+    {
+        return yuv420sp2rgb((unsigned char*)yuv420sp.request().ptr, w, h, (unsigned char*)rgb.request().ptr);
+    });
+    m.def("resize_bilinear_c1", [](py::buffer const src, int srcw, int srch, py::buffer dst, int w, int h)
+    {
+        return resize_bilinear_c1((unsigned char*)src.request().ptr, srcw, srch, (unsigned char*)dst.request().ptr, w, h);
+    });
+    m.def("resize_bilinear_c2", [](py::buffer const src, int srcw, int srch, py::buffer dst, int w, int h)
+    {
+        return resize_bilinear_c2((unsigned char*)src.request().ptr, srcw, srch, (unsigned char*)dst.request().ptr, w, h);
+    });
+    m.def("resize_bilinear_c3", [](py::buffer const src, int srcw, int srch, py::buffer dst, int w, int h)
+    {
+        return resize_bilinear_c3((unsigned char*)src.request().ptr, srcw, srch, (unsigned char*)dst.request().ptr, w, h);
+    });
+    m.def("resize_bilinear_c4", [](py::buffer const src, int srcw, int srch, py::buffer dst, int w, int h)
+    {
+        return resize_bilinear_c4((unsigned char*)src.request().ptr, srcw, srch, (unsigned char*)dst.request().ptr, w, h);
+    });
+    m.def("resize_bilinear_c1", [](py::buffer const src, int srcw, int srch, int srcstride, py::buffer dst, int w, int h, int stride)
+    {
+        return resize_bilinear_c1((unsigned char*)src.request().ptr, srcw, srch, srcstride, (unsigned char*)dst.request().ptr, w, h, stride);
+    });
+    m.def("resize_bilinear_c2", [](py::buffer const src, int srcw, int srch, int srcstride, py::buffer dst, int w, int h, int stride)
+    {
+        return resize_bilinear_c2((unsigned char*)src.request().ptr, srcw, srch, srcstride, (unsigned char*)dst.request().ptr, w, h, stride);
+    });
+    m.def("resize_bilinear_c3", [](py::buffer const src, int srcw, int srch, int srcstride, py::buffer dst, int w, int h, int stride)
+    {
+        return resize_bilinear_c3((unsigned char*)src.request().ptr, srcw, srch, srcstride, (unsigned char*)dst.request().ptr, w, h, stride);
+    });
+    m.def("resize_bilinear_c4", [](py::buffer const src, int srcw, int srch, int srcstride, py::buffer dst, int w, int h, int stride)
+    {
+        return resize_bilinear_c4((unsigned char*)src.request().ptr, srcw, srch, srcstride, (unsigned char*)dst.request().ptr, w, h, stride);
+    });
+    m.def("resize_bilinear_yuv420sp", [](py::buffer const src, int srcw, int srch, py::buffer dst, int w, int h)
+    {
+        return resize_bilinear_yuv420sp((unsigned char*) src.request().ptr, srcw, srch, (unsigned char*) dst.request().ptr, w, h);
+    });
+#endif // NCNN_PIXEL
+#if NCNN_PIXEL_ROTATE
+    m.def("kanna_rotate_c1", [](py::buffer const src, int srcw, int srch, py::buffer dst, int w, int h, int type)
+    {
+        return kanna_rotate_c1((unsigned char*) src.request().ptr, srcw, srch, (unsigned char*) dst.request().ptr, w, h, type);
+    });
+    m.def("kanna_rotate_c2", [](py::buffer const src, int srcw, int srch, py::buffer dst, int w, int h, int type)
+    {
+        return kanna_rotate_c2((unsigned char*) src.request().ptr, srcw, srch, (unsigned char*) dst.request().ptr, w, h, type);
+    });
+    m.def("kanna_rotate_c3", [](py::buffer const src, int srcw, int srch, py::buffer dst, int w, int h, int type)
+    {
+        return kanna_rotate_c3((unsigned char*) src.request().ptr, srcw, srch, (unsigned char*) dst.request().ptr, w, h, type);
+    });
+    m.def("kanna_rotate_c4", [](py::buffer const src, int srcw, int srch, py::buffer dst, int w, int h, int type)
+    {
+        return kanna_rotate_c4((unsigned char*) src.request().ptr, srcw, srch, (unsigned char*) dst.request().ptr, w, h, type);
+    });
+    m.def("kanna_rotate_c1", [](py::buffer const src, int srcw, int srch, int srcstride, py::buffer dst, int w, int h, int stride, int type)
+    {
+        return kanna_rotate_c1((unsigned char*) src.request().ptr, srcw, srch, srcstride, (unsigned char*) dst.request().ptr, w, h, stride, type);
+    });
+    m.def("kanna_rotate_c2", [](py::buffer const src, int srcw, int srch, int srcstride, py::buffer dst, int w, int h, int stride, int type)
+    {
+        return kanna_rotate_c2((unsigned char*) src.request().ptr, srcw, srch, srcstride, (unsigned char*) dst.request().ptr, w, h, stride, type);
+    });
+    m.def("kanna_rotate_c3", [](py::buffer const src, int srcw, int srch, int srcstride, py::buffer dst, int w, int h, int stride, int type)
+    {
+        return kanna_rotate_c3((unsigned char*) src.request().ptr, srcw, srch, srcstride, (unsigned char*) dst.request().ptr, w, h, stride, type);
+    });
+    m.def("kanna_rotate_c4", [](py::buffer const src, int srcw, int srch, int srcstride, py::buffer dst, int w, int h, int stride, int type)
+    {
+        return kanna_rotate_c4((unsigned char*) src.request().ptr, srcw, srch, srcstride, (unsigned char*) dst.request().ptr, w, h, stride, type);
+    });
+    m.def("kanna_rotate_yuv420sp", [](py::buffer const src, int srcw, int srch, py::buffer dst, int w, int h, int type)
+    {
+        return kanna_rotate_yuv420sp((unsigned char*) src.request().ptr, srcw, srch, (unsigned char*) dst.request().ptr, w, h, type);
+    });
+#endif // NCNN_PIXEL_ROTATE
+    m.def("copy_make_border", [](const Mat& src, Mat& dst, int top, int bottom, int left, int right, int type, float v)
+    {
+        return copy_make_border(src, dst, top, bottom, left, right, type, v);
+    });
+    m.def("copy_make_border", [](const Mat& src, Mat& dst, int top, int bottom, int left, int right, int type, float v, const Option& opt)
+    {
+        return copy_make_border(src, dst, top, bottom, left, right, type, v, opt);
+    });
+    m.def("copy_cut_border", [](const Mat& src, Mat& dst, int top, int bottom, int left, int right)
+    {
+        return copy_cut_border(src, dst, top, bottom, left, right);
+    });
+    m.def("copy_cut_border", [](const Mat& src, Mat& dst, int top, int bottom, int left, int right, const Option& opt)
+    {
+        return copy_cut_border(src, dst, top, bottom, left, right, opt);
+    });
+    m.def("resize_bilinear", [](const Mat& src, Mat& dst, int w, int h)
+    {
+        return resize_bilinear(src, dst, w, h);
+    });
+    m.def("resize_bilinear", [](const Mat& src, Mat& dst, int w, int h, const Option& opt)
+    {
+        return resize_bilinear(src, dst, w, h, opt);
+    });
+    m.def("resize_bicubic", [](const Mat& src, Mat& dst, int w, int h)
+    {
+        return resize_bicubic(src, dst, w, h);
+    });
+    m.def("resize_bicubic", [](const Mat& src, Mat& dst, int w, int h, const Option& opt)
+    {
+        return resize_bicubic(src, dst, w, h, opt);
+    });
+    m.def("convert_packing", [](const Mat& src, Mat& dst, int elempack)
+    {
+        return convert_packing(src, dst, elempack);
+    });
+    m.def("convert_packing", [](const Mat& src, Mat& dst, int elempack, const Option& opt)
+    {
+        return convert_packing(src, dst, elempack, opt);
+    });
+    m.def("cast_float32_to_float16", [](const Mat& src, Mat& dst)
+    {
+        return cast_float32_to_float16(src, dst);
+    });
+    m.def("cast_float32_to_float16", [](const Mat& src, Mat& dst, const Option& opt)
+    {
+        return cast_float32_to_float16(src, dst, opt);
+    });
+    m.def("cast_float16_to_float32", [](const Mat& src, Mat& dst)
+    {
+        return cast_float16_to_float32(src, dst);
+    });
+    m.def("cast_float16_to_float32", [](const Mat& src, Mat& dst, const Option& opt)
+    {
+        return cast_float16_to_float32(src, dst, opt);
+    });
+    m.def("cast_int8_to_float32", [](const Mat& src, Mat& dst)
+    {
+        return cast_int8_to_float32(src, dst);
+    });
+    m.def("cast_int8_to_float32", [](const Mat& src, Mat& dst, const Option& opt)
+    {
+        return cast_int8_to_float32(src, dst, opt);
+    });
+    m.def("quantize_float32_to_int8", [](const Mat& src, Mat& dst, float scale)
+    {
+        return quantize_float32_to_int8(src, dst, scale);
+    });
+    m.def("quantize_float32_to_int8", [](const Mat& src, Mat& dst, float scale, const Option& opt)
+    {
+        return quantize_float32_to_int8(src, dst, scale, opt);
+    });
+    m.def("dequantize_int32_to_float32", [](Mat& m, float scale, py::buffer bias, int bias_data_size)
+    {
+        return dequantize_int32_to_float32(m, scale, (float*)bias.request().ptr, bias_data_size);
+    });
+    m.def("dequantize_int32_to_float32", [](Mat& m, float scale, py::buffer bias, int bias_data_size, const Option& opt)
+    {
+        return dequantize_int32_to_float32(m, scale, (float*)bias.request().ptr, bias_data_size, opt);
+    });
+    m.def("requantize_int8_to_int8", [](const Mat& src, Mat& dst, float scale_in, float scale_out, py::buffer bias, int bias_data_size, int fusion_relu)
+    {
+        return requantize_int8_to_int8(src, dst, scale_in, scale_out, (float*)bias.request().ptr, bias_data_size, fusion_relu);
+    });
+    m.def("requantize_int8_to_int8", [](const Mat& src, Mat& dst, float scale_in, float scale_out, py::buffer bias, int bias_data_size, int fusion_relu, const Option& opt)
+    {
+        return requantize_int8_to_int8(src, dst, scale_in, scale_out, (float*) bias.request().ptr, bias_data_size, fusion_relu, opt);
     });
 
 #if NCNN_VULKAN

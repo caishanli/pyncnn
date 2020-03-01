@@ -20,6 +20,10 @@ class MobileNetV2_SSDLite:
         self.net = ncnn.Net()
         self.net.opt.use_vulkan_compute = self.use_gpu
         #self.net.register_custom_layer("Silence", Noop_layer_creator)
+        
+        # original pretrained model from https://github.com/chuanqi305/MobileNetv2-SSDLite
+        # https://github.com/chuanqi305/MobileNetv2-SSDLite/blob/master/ssdlite/voc/deploy.prototxt
+        # the ncnn model https://github.com/caishanli/pyncnn-assets/tree/master/models
         self.net.load_param(get_model_file("mobilenetv2_ssdlite_voc.param"))
         self.net.load_model(get_model_file("mobilenetv2_ssdlite_voc.bin"))
 

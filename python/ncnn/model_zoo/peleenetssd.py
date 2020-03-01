@@ -1,31 +1,29 @@
 import ncnn
 from .model_store import get_model_file
 
-class MobileNet_SSD:
-    def __init__(self, img_width=300, img_height=300, num_threads=1, use_gpu=False):
+class PeleeNet_SSD:
+    def __init__(self, img_width=304, img_height=304, num_threads=1, use_gpu=False):
         self.img_width = img_width
         self.img_height = img_height
         self.num_threads = num_threads
         self.use_gpu = use_gpu
 
-        self.mean_vals = [127.5, 127.5, 127.5]
-        self.norm_vals = [0.007843, 0.007843, 0.007843]
+        self.mean_vals = [103.9, 116.7, 123.6]
+        self.norm_vals = [0.017,0.017,0.017]
 
         self.net = ncnn.Net()
         self.net.opt.use_vulkan_compute = self.use_gpu
 
-        # model is converted from https://github.com/chuanqi305/MobileNet-SSD
-        # and can be downloaded from https://drive.google.com/open?id=0ByaKLD9QaPtucWk0Y0dha1VVY0U
+        # model is converted from https://github.com/eric612/MobileNet-YOLO
+        # and can be downloaded from https://drive.google.com/open?id=1Wt6jKv13sBRMHgrGAJYlOlRF-o80pC0g
         # the ncnn model https://github.com/caishanli/pyncnn-assets/tree/master/models
-        self.net.load_param(get_model_file("mobilenet_ssd_voc_ncnn.param"))
-        self.net.load_model(get_model_file("mobilenet_ssd_voc_ncnn.bin"))
+        self.net.load_param(get_model_file("pelee.param"))
+        self.net.load_model(get_model_file("pelee.bin"))
 
         self.class_names = ["background",
-            "aeroplane", "bicycle", "bird", "boat",
-            "bottle", "bus", "car", "cat", "chair",
-            "cow", "diningtable", "dog", "horse",
-            "motorbike", "person", "pottedplant",
-            "sheep", "sofa", "train", "tvmonitor"]
+        "person","rider", "car","bus",
+        "truck","bike","motor",
+        "traffic light","traffic sign","train"]
             
     def __del__(self):
         self.net = None
@@ -78,4 +76,10 @@ class MobileNet_SSD:
             objects.append(obj)
         '''
 
-        return objects
+        seg_out = ncnn.Mat()
+        ex.extract("sigmoid", seg_out)
+
+        resized = ncnn.Mat()
+        ncnn.resize_bilinear(seg_out, resized, img_w, img_h)
+
+        return objects, resized
