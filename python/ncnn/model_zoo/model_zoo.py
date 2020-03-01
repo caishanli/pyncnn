@@ -7,6 +7,7 @@ from .mobilenetv3ssdlite import MobileNetV3_SSDLite
 from .squeezenet import SqueezeNet
 from .fasterrcnn import Faster_RCNN
 from .peleenetssd import PeleeNet_SSD
+from .retinaface import RetinaFace
 
 __all__ = ['get_model', 'get_model_list']
 
@@ -20,6 +21,7 @@ _models = {
             'squeezenet' : SqueezeNet,
             'faster_rcnn' : Faster_RCNN,
             "peleenet_ssd" : PeleeNet_SSD,
+            "retinaface" : RetinaFace,
         }
 
 def get_model(name, **kwargs):

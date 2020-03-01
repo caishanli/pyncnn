@@ -1,6 +1,7 @@
 import numpy as np
 import ncnn
 from .model_store import get_model_file
+from ..utils.objects import Detect_Object
 
 class Faster_RCNN:
     def __init__(self, img_width=600, img_height=600, num_threads=1, use_gpu=False, max_per_image=100, confidence_thresh=0.05, nms_threshold=0.3):
@@ -142,13 +143,13 @@ class Faster_RCNN:
             obj_y2 = np.maximum(np.minimum(obj_y2, float(img.shape[0] - 1)), 0.0)
 
             # append object
-            obj = {}
-            obj['x'] = obj_x1
-            obj['y'] = obj_y1
-            obj['w'] = obj_x2 - obj_x1 + 1
-            obj['h'] = obj_y2 - obj_y1 + 1
-            obj['label'] = label
-            obj['prob'] = score
+            obj = Detect_Object()
+            obj.rect.x = obj_x1
+            obj.rect.y = obj_y1
+            obj.rect.w = obj_x2 - obj_x1 + 1
+            obj.rect.h = obj_y2 - obj_y1 + 1
+            obj.label = label
+            obj.prob = score
 
             class_candidates[label].append(obj)
 
@@ -158,7 +159,7 @@ class Faster_RCNN:
             if len(candidates) == 0:
                 continue
 
-            candidates.sort(key=lambda obj : obj['prob'], reverse=True)
+            candidates.sort(key=lambda obj : obj.prob, reverse=True)
 
             picked = self.nms_sorted_bboxes(candidates, self.nms_threshold);
 
@@ -166,7 +167,7 @@ class Faster_RCNN:
                 z = picked[j]
                 objects.append(candidates[z])
 
-        objects.sort(key=lambda obj : obj['prob'], reverse=True)
+        objects.sort(key=lambda obj : obj.prob, reverse=True)
 
         objects = objects[:self.max_per_image]
 
@@ -179,7 +180,7 @@ class Faster_RCNN:
 
         areas = np.zeros((n,), dtype=np.float32)
         for i in range(n):
-            areas[i] = objects[i]['w'] * objects[i]['h']
+            areas[i] = objects[i].rect.area()
 
         for i in range(n):
             a = objects[i]
@@ -189,7 +190,7 @@ class Faster_RCNN:
                 b = objects[picked[j]]
 
                 # intersection over union
-                inter_area = self.intersection_area(a, b)
+                inter_area = a.rect.intersection_area(b.rect)
                 union_area = areas[i] + areas[picked[j]] - inter_area
                 #float IoU = inter_area / union_area
                 if inter_area / union_area > nms_threshold:
@@ -199,10 +200,3 @@ class Faster_RCNN:
                 picked.append(i)
                 
         return picked
-
-    def intersection_area(self, a, b):
-        x1 = np.maximum(a['x'], b['x'])
-        y1 = np.maximum(a['y'], b['y'])
-        x2 = np.minimum(a['x'] + a['w'], b['x'] + b['w'])
-        y2 = np.minimum(a['y'] + a['h'], b['y'] + b['h'])
-        return np.abs(x1 - x2) * np.abs(y1 - y2)

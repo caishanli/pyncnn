@@ -1,6 +1,7 @@
 import numpy as np
 import ncnn
 from .model_store import get_model_file
+from ..utils.objects import Detect_Object
 
 def clamp(v, lo, hi):
     if v < lo:
@@ -63,9 +64,9 @@ class MobileNetV3_SSDLite:
         for i in range(mat_out.h):
             values = mat_out.row(i)
 
-            obj = {}
-            obj['label'] = values[0]
-            obj['prob'] = values[1]
+            obj = Detect_Object()
+            obj.label = values[0]
+            obj.prob = values[1]
 
             x1 = clamp(values[2] * self.img_width, 0.0, float(self.img_width - 1)) / self.img_width * img_w
             y1 = clamp(values[3] * self.img_height, 0.0, float(self.img_height - 1)) / self.img_height * img_h
@@ -75,10 +76,10 @@ class MobileNetV3_SSDLite:
             if np.isnan(x1) or np.isnan(y1) or np.isnan(x2) or np.isnan(y2):
                 continue
 
-            obj['x'] = x1
-            obj['y'] = y1
-            obj['w'] = x2 - x1
-            obj['h'] = y2 - y1
+            obj.rect.x = x1
+            obj.rect.y = y1
+            obj.rect.w = x2 - x1
+            obj.rect.h = y2 - y1
 
             objects.append(obj)
             
@@ -87,19 +88,19 @@ class MobileNetV3_SSDLite:
         out = np.array(mat_out)
         for i in range(len(out)):
             values = out[i]
-            obj = {}
-            obj['label'] = values[0]
-            obj['prob'] = values[1]
+            obj = Detect_Object()
+            obj.label = values[0]
+            obj.prob = values[1]
 
             x1 = clamp(values[2] * self.img_width, 0.0, float(self.img_width - 1)) / self.img_width * img_w
             y1 = clamp(values[3] * self.img_height, 0.0, float(self.img_height - 1)) / self.img_height * img_h
             x2 = clamp(values[4] * self.img_width, 0.0, float(self.img_width - 1)) / self.img_width * img_w
             y2 = clamp(values[5] * self.img_height, 0.0, float(self.img_height - 1)) / self.img_height * img_h
 
-            obj['x'] = x1
-            obj['y'] = y1
-            obj['w'] = x2 - x1
-            obj['h'] = y2 - y1
+            obj.rect.x = x1
+            obj.rect.y = y1
+            obj.rect.w = x2 - x1
+            obj.rect.h = y2 - y1
 
             objects.append(obj)
         '''

@@ -29,6 +29,8 @@ _model_sha1 = {name: checksum for checksum, name in [
     ('1095fbb5f846a1f311b40941add5fef691acaf8d', 'ZF_faster_rcnn_final.bin'),
     ('3586ec3d663b1cc8ec8c662768caa9c7fbcf4fdc', 'pelee.param'),
     ('2442ad483dc546940271591b86db0d9c8b1c7118', 'pelee.bin'),
+    ('6cfeda08d5494a1274199089fda77c421be1ecac', 'mnet.25-opt.param'),
+    ('3ff9a51dc81cdf506a87543dbf752071ffc50b8d', 'mnet.25-opt.bin'),
 ]}
 
 apache_repo_url = 'https://github.com/caishanli/pyncnn-assets/raw/master/models/'

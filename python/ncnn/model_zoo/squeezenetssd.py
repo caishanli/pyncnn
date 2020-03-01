@@ -1,5 +1,6 @@
 import ncnn
 from .model_store import get_model_file
+from ..utils.objects import Detect_Object
 
 class SqueezeNet_SSD:
     def __init__(self, img_width=300, img_height=300, num_threads=1, use_gpu=False):
@@ -54,13 +55,13 @@ class SqueezeNet_SSD:
         for i in range(mat_out.h):
             values = mat_out.row(i)
 
-            obj = {}
-            obj['label'] = values[0]
-            obj['prob'] = values[1]
-            obj['x'] = values[2] * img_w
-            obj['y'] = values[3] * img_h
-            obj['w'] = values[4] * img_w - obj['x']
-            obj['h'] = values[5] * img_h - obj['y']
+            obj = Detect_Object()
+            obj.label = values[0]
+            obj.prob = values[1]
+            obj.rect.x = values[2] * img_w
+            obj.rect.y = values[3] * img_h
+            obj.rect.w = values[4] * img_w - obj.rect.x
+            obj.rect.h = values[5] * img_h - obj.rect.y
 
             objects.append(obj)
 
@@ -69,13 +70,13 @@ class SqueezeNet_SSD:
         out = np.array(mat_out)
         for i in range(len(out)):
             values = out[i]
-            obj = {}
-            obj['label'] = values[0]
-            obj['prob'] = values[1]
-            obj['x'] = values[2] * img_w
-            obj['y'] = values[3] * img_h
-            obj['w'] = values[4] * img_w - obj['x']
-            obj['h'] = values[5] * img_h - obj['y']
+            obj = Detect_Object()
+            obj.label = values[0]
+            obj.prob = values[1]
+            obj.rect.x = values[2] * img_w
+            obj.rect.y = values[3] * img_h
+            obj.rect.w = values[4] * img_w - obj.rect.x
+            obj.rect.h = values[5] * img_h - obj.rect.y
             objects.append(obj)
         '''
 
