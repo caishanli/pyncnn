@@ -4,11 +4,19 @@ import sys
 if sys.version_info < (3,0):
   sys.exit('Sorry, Python < 3.0 is not supported')
 
+requirements = [
+    'numpy',
+    'tqdm',
+    'requests',
+    'portalocker',
+]
+
 setup(
   name          = 'ncnn',
   version       = '0.0.1',
   url           = 'https://github.com/caishanli/pyncnn',
   packages      = find_packages(),
   package_dir   = {'': '.'},
-  package_data  = {'ncnn': ['ncnn.cp38-win_amd64.pyd']}
+  package_data  = {'ncnn': ['ncnn${PYTHON_MODULE_PREFIX}${PYTHON_MODULE_EXTENSION}']}
+  install_requires = requirements
 )
