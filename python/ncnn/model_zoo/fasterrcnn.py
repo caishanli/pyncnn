@@ -161,7 +161,7 @@ class Faster_RCNN:
 
             candidates.sort(key=lambda obj : obj.prob, reverse=True)
 
-            picked = self.nms_sorted_bboxes(candidates, self.nms_threshold);
+            picked = self.nms_sorted_bboxes(candidates, self.nms_threshold)
 
             for j in range(len(picked)):
                 z = picked[j]
@@ -185,7 +185,7 @@ class Faster_RCNN:
         for i in range(n):
             a = objects[i]
 
-            keep = True;
+            keep = True
             for j in range(len(picked)):
                 b = objects[picked[j]]
 

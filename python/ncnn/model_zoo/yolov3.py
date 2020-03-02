@@ -3,9 +3,8 @@ from .model_store import get_model_file
 from ..utils.objects import Detect_Object
 
 class MobileNetV2_YoloV3:
-    def __init__(self, img_width=352, img_height=352, num_threads=1, use_gpu=False):
-        self.img_width = img_width
-        self.img_height = img_height
+    def __init__(self, target_size=352, num_threads=1, use_gpu=False):
+        self.target_size = target_size
         self.num_threads = num_threads
         self.use_gpu = use_gpu
 
@@ -36,7 +35,7 @@ class MobileNetV2_YoloV3:
         img_h = img.shape[0]
         img_w = img.shape[1]
 
-        mat_in = ncnn.Mat.from_pixels_resize(img, ncnn.Mat.PixelType.PIXEL_BGR, img.shape[1], img.shape[0], self.img_width, self.img_height)
+        mat_in = ncnn.Mat.from_pixels_resize(img, ncnn.Mat.PixelType.PIXEL_BGR, img.shape[1], img.shape[0], self.target_size, self.target_size)
         mat_in.substract_mean_normalize(self.mean_vals, self.norm_vals)
 
         ex = self.net.create_extractor()

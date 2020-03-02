@@ -9,6 +9,7 @@ requirements = [
     'tqdm',
     'requests',
     'portalocker',
+    'opencv-python'
 ]
 
 setup(

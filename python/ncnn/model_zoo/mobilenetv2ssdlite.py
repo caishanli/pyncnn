@@ -9,9 +9,8 @@ def Noop_layer_creator():
     return Noop()
 
 class MobileNetV2_SSDLite:
-    def __init__(self, img_width=300, img_height=300, num_threads=1, use_gpu=False):
-        self.img_width = img_width
-        self.img_height = img_height
+    def __init__(self, target_size=300, num_threads=1, use_gpu=False):
+        self.target_size = target_size
         self.num_threads = num_threads
         self.use_gpu = use_gpu
 
@@ -42,7 +41,7 @@ class MobileNetV2_SSDLite:
         img_h = img.shape[0]
         img_w = img.shape[1]
 
-        mat_in = ncnn.Mat.from_pixels_resize(img, ncnn.Mat.PixelType.PIXEL_BGR, img_w, img_h, self.img_width, self.img_height)
+        mat_in = ncnn.Mat.from_pixels_resize(img, ncnn.Mat.PixelType.PIXEL_BGR, img_w, img_h, self.target_size, self.target_size)
         mat_in.substract_mean_normalize(self.mean_vals, self.norm_vals)
 
         ex = self.net.create_extractor()

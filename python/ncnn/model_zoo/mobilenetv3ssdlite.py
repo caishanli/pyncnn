@@ -12,9 +12,8 @@ def clamp(v, lo, hi):
         return v
 
 class MobileNetV3_SSDLite:
-    def __init__(self, img_width=300, img_height=300, num_threads=1, use_gpu=False):
-        self.img_width = img_width
-        self.img_height = img_height
+    def __init__(self, target_size=300, num_threads=1, use_gpu=False):
+        self.target_size = target_size
         self.num_threads = num_threads
         self.use_gpu = use_gpu
 
@@ -43,7 +42,7 @@ class MobileNetV3_SSDLite:
         img_h = img.shape[0]
         img_w = img.shape[1]
 
-        mat_in = ncnn.Mat.from_pixels_resize(img, ncnn.Mat.PixelType.PIXEL_BGR2RGB, img.shape[1], img.shape[0], self.img_width, self.img_height)
+        mat_in = ncnn.Mat.from_pixels_resize(img, ncnn.Mat.PixelType.PIXEL_BGR2RGB, img.shape[1], img.shape[0], self.target_size, self.target_size)
         mat_in.substract_mean_normalize([], self.norm_vals)
         mat_in.substract_mean_normalize(self.mean_vals, [])
 
@@ -68,10 +67,10 @@ class MobileNetV3_SSDLite:
             obj.label = values[0]
             obj.prob = values[1]
 
-            x1 = clamp(values[2] * self.img_width, 0.0, float(self.img_width - 1)) / self.img_width * img_w
-            y1 = clamp(values[3] * self.img_height, 0.0, float(self.img_height - 1)) / self.img_height * img_h
-            x2 = clamp(values[4] * self.img_width, 0.0, float(self.img_width - 1)) / self.img_width * img_w
-            y2 = clamp(values[5] * self.img_height, 0.0, float(self.img_height - 1)) / self.img_height * img_h
+            x1 = clamp(values[2] * self.target_size, 0.0, float(self.target_size - 1)) / self.target_size * img_w
+            y1 = clamp(values[3] * self.target_size, 0.0, float(self.target_size - 1)) / self.target_size * img_h
+            x2 = clamp(values[4] * self.target_size, 0.0, float(self.target_size - 1)) / self.target_size * img_w
+            y2 = clamp(values[5] * self.target_size, 0.0, float(self.target_size - 1)) / self.target_size * img_h
 
             if np.isnan(x1) or np.isnan(y1) or np.isnan(x2) or np.isnan(y2):
                 continue
