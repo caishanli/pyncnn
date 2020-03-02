@@ -57,3 +57,17 @@ mat_np = np.array(mat)
 mat_np = np.array(...)
 mat = ncnn.Mat(mat_np)
 ```
+
+## model zoo
+install requirements
+```bash
+pip install tqdm requests portalocker opencv-python
+```
+then you can import ncnn.model_zoo and get model list as follow:
+```bash
+import ncnn
+import ncnn.model_zoo as model_zoo
+
+print(model_zoo.get_model_list())
+```
+all model in model zoo has example in examples folder

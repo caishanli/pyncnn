@@ -6,10 +6,10 @@ if sys.version_info < (3,0):
 
 requirements = [
     'numpy',
-    'tqdm',
-    'requests',
-    'portalocker',
-    'opencv-python'
+    #'tqdm',
+    #'requests',
+    #'portalocker',
+    #'opencv-python'
 ]
 
 setup(
