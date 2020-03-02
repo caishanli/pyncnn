@@ -13,7 +13,7 @@ public:
 class Layer : public ncnn::Layer
 {
 public:
-    ::Layer(std::function<::LayerImpl*( )> creator)
+    Layer(std::function<LayerImpl*()> creator)
     {
         _impl = creator();
     }
