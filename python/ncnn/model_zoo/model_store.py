@@ -33,6 +33,10 @@ _model_sha1 = {name: checksum for checksum, name in [
     ('3ff9a51dc81cdf506a87543dbf752071ffc50b8d', 'mnet.25-opt.bin'),
     ('50acebff393c91468a73a7b7c604ef231429d068', 'rfcn_end2end.param'),
     ('9a68cd937959b4dda9c5bf9c99181cb0e40f266b', 'rfcn_end2end.bin'),
+    ('5a76b44b869a925d64abefcadf296c0f36886085', 'shufflenet_v2_x0.5.param'),
+    ('85998dfe1fb2caeeadc6267927434bb5aa0878f3', 'shufflenet_v2_x0.5.bin'),
+    ('7c8f8d72c60aab6802985423686b36c61be2f68c', 'pose.param'),
+    ('7f691540972715298c611a3e595b20c59c2147ce', 'pose.bin'),
 ]}
 
 apache_repo_url = 'https://github.com/caishanli/pyncnn-assets/raw/master/models/'

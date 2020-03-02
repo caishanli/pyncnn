@@ -33,4 +33,9 @@ class Face_Object(object):
         self.prob = 0.0
         self.rect = Rect()
         self.landmark = []
+
+class KeyPoint(object):
+    def __init__(self):
+        self.p = Point()
+        self.prob = 0.0
         

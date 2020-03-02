@@ -8,7 +8,9 @@ from .squeezenet import SqueezeNet
 from .fasterrcnn import Faster_RCNN
 from .peleenetssd import PeleeNet_SSD
 from .retinaface import RetinaFace
-from .rfcn import RFCN
+#from .rfcn import RFCN
+from .shufflenetv2 import ShuffleNetV2
+from .simplepose import SimplePose
 
 __all__ = ['get_model', 'get_model_list']
 
@@ -23,7 +25,9 @@ _models = {
             'faster_rcnn' : Faster_RCNN,
             "peleenet_ssd" : PeleeNet_SSD,
             "retinaface" : RetinaFace,
-            "rfcn" : RFCN,
+            #"rfcn" : RFCN,
+            "shufflenetv2" : ShuffleNetV2,
+            "simplepose" : SimplePose,
         }
 
 def get_model(name, **kwargs):
