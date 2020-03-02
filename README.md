@@ -44,3 +44,16 @@ python3 benchmark.py
 cd /path/to/pyncnn/tests
 python3 benchmark_gpu.py
 ```
+
+## numpy
+**ncnn.Mat->numpy.array, with no memory copy**
+```bash
+mat = ncnn.Mat(...)
+mat_np = np.array(mat)
+```
+
+**numpy.array->ncnn.Mat, with no memory copy**
+```bash
+mat_np = np.array(...)
+mat = ncnn.Mat(mat_np)
+```

@@ -17,6 +17,6 @@ setup(
   url           = 'https://github.com/caishanli/pyncnn',
   packages      = find_packages(),
   package_dir   = {'': '.'},
-  package_data  = {'ncnn': ['ncnn${PYTHON_MODULE_PREFIX}${PYTHON_MODULE_EXTENSION}']}
+  package_data  = {'ncnn': ['ncnn${PYTHON_MODULE_PREFIX}${PYTHON_MODULE_EXTENSION}']},
   install_requires = requirements
 )
