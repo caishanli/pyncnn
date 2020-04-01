@@ -8,11 +8,11 @@ class PyAllocator : public Base
 {
 public:
     using Base::Base; // Inherit constructors
-    void* fastMalloc(size_t size) override
+    void *fastMalloc(size_t size) override
     {
-        PYBIND11_OVERLOAD_PURE(void*, Base, fastMalloc, size);
+        PYBIND11_OVERLOAD_PURE(void *, Base, fastMalloc, size);
     }
-    void fastFree(void* ptr) override
+    void fastFree(void *ptr) override
     {
         PYBIND11_OVERLOAD_PURE(void, Base, fastFree, ptr);
     }
@@ -23,11 +23,11 @@ class PyAllocatorOther : public PyAllocator<Other>
 {
 public:
     using PyAllocator<Other>::PyAllocator;
-    void* fastMalloc(size_t size) override
+    void *fastMalloc(size_t size) override
     {
-        PYBIND11_OVERLOAD(void*, Other, fastMalloc, size);
+        PYBIND11_OVERLOAD(void *, Other, fastMalloc, size);
     }
-    void fastFree(void* ptr) override
+    void fastFree(void *ptr) override
     {
         PYBIND11_OVERLOAD(void, Other, fastFree, ptr);
     }
@@ -39,23 +39,20 @@ class PyVkAllocator : public Base
 {
 public:
     using Base::Base; // Inherit constructors
-    void clear() override
+    void clear() override { PYBIND11_OVERLOAD(void, Base, clear, ); }
+    ncnn::VkBufferMemory *fastMalloc(size_t size) override
     {
-        PYBIND11_OVERLOAD(void, Base, clear, );
+        PYBIND11_OVERLOAD_PURE(ncnn::VkBufferMemory *, Base, fastMalloc, size);
     }
-    ncnn::VkBufferMemory* fastMalloc(size_t size) override
-    {
-        PYBIND11_OVERLOAD_PURE(ncnn::VkBufferMemory*, Base, fastMalloc, size);
-    }
-    void fastFree(ncnn::VkBufferMemory* ptr) override
+    void fastFree(ncnn::VkBufferMemory *ptr) override
     {
         PYBIND11_OVERLOAD_PURE(void, Base, fastFree, ptr);
     }
-    int flush(ncnn::VkBufferMemory* ptr) override
+    int flush(ncnn::VkBufferMemory *ptr) override
     {
         PYBIND11_OVERLOAD(int, Base, flush, ptr);
     }
-    int invalidate(ncnn::VkBufferMemory* ptr) override
+    int invalidate(ncnn::VkBufferMemory *ptr) override
     {
         PYBIND11_OVERLOAD(int, Base, invalidate, ptr);
     }
@@ -66,15 +63,12 @@ class PyVkAllocatorOther : public PyVkAllocator<Other>
 {
 public:
     using PyVkAllocator<Other>::PyVkAllocator;
-    void clear() override
+    void clear() override { PYBIND11_OVERLOAD(void, Other, clear, ); }
+    ncnn::VkBufferMemory *fastMalloc(size_t size) override
     {
-        PYBIND11_OVERLOAD(void, Other, clear, );
+        PYBIND11_OVERLOAD(ncnn::VkBufferMemory *, Other, fastMalloc, size);
     }
-    ncnn::VkBufferMemory* fastMalloc(size_t size) override
-    {
-        PYBIND11_OVERLOAD(ncnn::VkBufferMemory*, Other, fastMalloc, size);
-    }
-    void fastFree(ncnn::VkBufferMemory* ptr) override
+    void fastFree(ncnn::VkBufferMemory *ptr) override
     {
         PYBIND11_OVERLOAD(void, Other, fastFree, ptr);
     }
@@ -85,15 +79,14 @@ class PyVkImageAllocator : public Base
 {
 public:
     using Base::Base; // Inherit constructors
-    void clear() override
+    void clear() override { PYBIND11_OVERLOAD(void, Base, clear, ); }
+    ncnn::VkImageMemory *fastMalloc(int width, int height,
+                                    VkFormat format) override
     {
-        PYBIND11_OVERLOAD(void, Base, clear, );
+        PYBIND11_OVERLOAD_PURE(ncnn::VkImageMemory *, Base, fastMalloc, width,
+                               height, format);
     }
-    ncnn::VkImageMemory* fastMalloc(int width, int height, VkFormat format) override
-    {
-        PYBIND11_OVERLOAD_PURE(ncnn::VkImageMemory*, Base, fastMalloc, width, height, format);
-    }
-    void fastFree(ncnn::VkImageMemory* ptr) override
+    void fastFree(ncnn::VkImageMemory *ptr) override
     {
         PYBIND11_OVERLOAD_PURE(void, Base, fastFree, ptr);
     }
@@ -104,11 +97,13 @@ class PyVkImageAllocatorOther : public PyVkImageAllocator<Other>
 {
 public:
     using PyVkImageAllocator<Other>::PyVkImageAllocator;
-    ncnn::VkImageMemory* fastMalloc(int width, int height, VkFormat format) override
+    ncnn::VkImageMemory *fastMalloc(int width, int height,
+                                    VkFormat format) override
     {
-        PYBIND11_OVERLOAD(ncnn::VkImageMemory*, Other, fastMalloc, width, height, format);
+        PYBIND11_OVERLOAD(ncnn::VkImageMemory *, Other, fastMalloc, width, height,
+                          format);
     }
-    void fastFree(ncnn::VkImageMemory* ptr) override
+    void fastFree(ncnn::VkImageMemory *ptr) override
     {
         PYBIND11_OVERLOAD(void, Other, fastFree, ptr);
     }
