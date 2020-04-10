@@ -96,7 +96,9 @@ PYBIND11_MODULE(ncnn, m)
         .def_readwrite("use_fp16_arithmetic", &Option::use_fp16_arithmetic)
         .def_readwrite("use_int8_storage", &Option::use_int8_storage)
         .def_readwrite("use_int8_arithmetic", &Option::use_int8_arithmetic)
-        .def_readwrite("use_packing_layout", &Option::use_packing_layout);
+        .def_readwrite("use_packing_layout", &Option::use_packing_layout)
+        .def_readwrite("use_shader_pack8", &Option::use_shader_pack8)
+        .def_readwrite("use_bf16_storage", &Option::use_bf16_storage);
 
     py::class_<Mat> mat(m, "Mat", py::buffer_protocol());
     mat.def(py::init<>())
