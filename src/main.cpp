@@ -57,7 +57,9 @@ PYBIND11_MODULE(ncnn, m)
         .def_readwrite("name", &Blob::name)
 #endif // NCNN_STRING
         .def_readwrite("producer", &Blob::producer)
-        .def_readwrite("consumers", &Blob::consumers);
+        .def_readwrite("consumers", &Blob::consumers)
+        .def_readwrite("shape", &Blob::shape)
+        ;
 
     py::class_<ModelBin, PyModelBin<>>(m, "ModelBin");
     py::class_<ModelBinFromDataReader, ModelBin, PyModelBinOther<ModelBinFromDataReader>>(m, "ModelBinFromDataReader")
@@ -72,9 +74,9 @@ PYBIND11_MODULE(ncnn, m)
         .def("get", (int (ParamDict::*)(int, int) const) & ParamDict::get)
         .def("get", (float (ParamDict::*)(int, float) const) & ParamDict::get)
         .def("get", (Mat(ParamDict::*)(int, const Mat &) const) & ParamDict::get)
-        .def("get", (void (ParamDict::*)(int, int)) & ParamDict::set)
-        .def("get", (void (ParamDict::*)(int, float)) & ParamDict::set)
-        .def("get", (void (ParamDict::*)(int, const Mat &)) & ParamDict::set);
+        .def("set", (void (ParamDict::*)(int, int)) & ParamDict::set)
+        .def("set", (void (ParamDict::*)(int, float)) & ParamDict::set)
+        .def("set", (void (ParamDict::*)(int, const Mat &)) & ParamDict::set);
 
     py::class_<Option>(m, "Option")
         .def(py::init<>())
@@ -87,6 +89,7 @@ PYBIND11_MODULE(ncnn, m)
         .def_readwrite("workspace_vkallocator", &Option::workspace_vkallocator)
         .def_readwrite("staging_vkallocator", &Option::staging_vkallocator)
 #endif // NCNN_VULKAN
+        .def_readwrite("use_winograd_convolution", &Option::openmp_blocktime)
         .def_readwrite("use_winograd_convolution", &Option::use_winograd_convolution)
         .def_readwrite("use_sgemm_convolution", &Option::use_sgemm_convolution)
         .def_readwrite("use_int8_inference", &Option::use_int8_inference)
@@ -98,7 +101,9 @@ PYBIND11_MODULE(ncnn, m)
         .def_readwrite("use_int8_arithmetic", &Option::use_int8_arithmetic)
         .def_readwrite("use_packing_layout", &Option::use_packing_layout)
         .def_readwrite("use_shader_pack8", &Option::use_shader_pack8)
-        .def_readwrite("use_bf16_storage", &Option::use_bf16_storage);
+        .def_readwrite("use_shader_pack8", &Option::use_image_storage)
+        .def_readwrite("use_bf16_storage", &Option::use_bf16_storage)
+        .def_readwrite("use_bf16_storage", &Option::use_weight_fp16_storage);
 
     py::class_<Mat> mat(m, "Mat", py::buffer_protocol());
     mat.def(py::init<>())
@@ -335,22 +340,38 @@ PYBIND11_MODULE(ncnn, m)
         .value("PIXEL_CONVERT_SHIFT", ncnn::Mat::PixelType::PIXEL_CONVERT_SHIFT)
         .value("PIXEL_FORMAT_MASK", ncnn::Mat::PixelType::PIXEL_FORMAT_MASK)
         .value("PIXEL_CONVERT_MASK", ncnn::Mat::PixelType::PIXEL_CONVERT_MASK)
+
         .value("PIXEL_RGB", ncnn::Mat::PixelType::PIXEL_RGB)
         .value("PIXEL_BGR", ncnn::Mat::PixelType::PIXEL_BGR)
         .value("PIXEL_GRAY", ncnn::Mat::PixelType::PIXEL_GRAY)
         .value("PIXEL_RGBA", ncnn::Mat::PixelType::PIXEL_RGBA)
+        .value("PIXEL_BGRA", ncnn::Mat::PixelType::PIXEL_BGRA)
+
         .value("PIXEL_RGB2BGR", ncnn::Mat::PixelType::PIXEL_RGB2BGR)
         .value("PIXEL_RGB2GRAY", ncnn::Mat::PixelType::PIXEL_RGB2GRAY)
         .value("PIXEL_RGB2RGBA", ncnn::Mat::PixelType::PIXEL_RGB2RGBA)
+        .value("PIXEL_RGB2BGRA", ncnn::Mat::PixelType::PIXEL_RGB2BGRA)
+
         .value("PIXEL_BGR2RGB", ncnn::Mat::PixelType::PIXEL_BGR2RGB)
         .value("PIXEL_BGR2GRAY", ncnn::Mat::PixelType::PIXEL_BGR2GRAY)
         .value("PIXEL_BGR2RGBA", ncnn::Mat::PixelType::PIXEL_BGR2RGBA)
+        .value("PIXEL_BGR2BGRA", ncnn::Mat::PixelType::PIXEL_BGR2BGRA)
+
         .value("PIXEL_GRAY2RGB", ncnn::Mat::PixelType::PIXEL_GRAY2RGB)
         .value("PIXEL_GRAY2BGR", ncnn::Mat::PixelType::PIXEL_GRAY2BGR)
         .value("PIXEL_GRAY2RGBA", ncnn::Mat::PixelType::PIXEL_GRAY2RGBA)
+        .value("PIXEL_GRAY2BGRA", ncnn::Mat::PixelType::PIXEL_GRAY2BGRA)
+
         .value("PIXEL_RGBA2RGB", ncnn::Mat::PixelType::PIXEL_RGBA2RGB)
         .value("PIXEL_RGBA2BGR", ncnn::Mat::PixelType::PIXEL_RGBA2BGR)
-        .value("PIXEL_RGBA2GRAY", ncnn::Mat::PixelType::PIXEL_RGBA2GRAY);
+        .value("PIXEL_RGBA2GRAY", ncnn::Mat::PixelType::PIXEL_RGBA2GRAY)
+        .value("PIXEL_RGBA2BGRA", ncnn::Mat::PixelType::PIXEL_RGBA2BGRA)
+
+        .value("PIXEL_BGRA2RGB", ncnn::Mat::PixelType::PIXEL_BGRA2RGB)
+        .value("PIXEL_BGRA2BGR", ncnn::Mat::PixelType::PIXEL_BGRA2BGR)
+        .value("PIXEL_BGRA2GRAY", ncnn::Mat::PixelType::PIXEL_BGRA2GRAY)
+        .value("PIXEL_BGRA2RGBA", ncnn::Mat::PixelType::PIXEL_BGRA2RGBA)
+        ;
 
 #if NCNN_VULKAN
     py::class_<VkMat>(m, "VkMat")
@@ -531,6 +552,11 @@ PYBIND11_MODULE(ncnn, m)
         .def_readwrite("support_inplace", &LayerImpl::support_inplace)
         .def_readwrite("support_vulkan", &LayerImpl::support_vulkan)
         .def_readwrite("support_packing", &LayerImpl::support_packing)
+        .def_readwrite("support_bf16_storage", &LayerImpl::support_bf16_storage)
+        .def_readwrite("support_fp16_storage", &LayerImpl::support_fp16_storage)
+        .def_readwrite("support_image_storage", &LayerImpl::support_image_storage)
+        .def_readwrite("use_int8_inference", &LayerImpl::use_int8_inference)
+        .def_readwrite("support_weight_fp16_storage", &LayerImpl::support_weight_fp16_storage)
         .def("forward", (int (LayerImpl::*)(const std::vector<Mat> &, std::vector<Mat> &, const Option &) const) & LayerImpl::forward)
         .def("forward", (int (LayerImpl::*)(const Mat &, Mat &, const Option &) const) & LayerImpl::forward)
         //.def("forward_inplace", ( int( LayerImpl::* )( std::vector<Mat>&, const Option& ) const )&LayerImpl::forward_inplace)
@@ -546,7 +572,10 @@ PYBIND11_MODULE(ncnn, m)
         .def_readwrite("type", &LayerImpl::type)
         .def_readwrite("name", &LayerImpl::name)
         .def_readwrite("bottoms", &LayerImpl::bottoms)
-        .def_readwrite("tops", &LayerImpl::tops);
+        .def_readwrite("tops", &LayerImpl::tops)
+        .def_readwrite("bottom_shapes", &LayerImpl::bottom_shapes)
+        .def_readwrite("top_shapes", &LayerImpl::top_shapes)
+        ;
 
     py::class_<Net>(m, "Net")
         .def(py::init<>())
