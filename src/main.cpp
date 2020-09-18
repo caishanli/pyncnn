@@ -331,7 +331,7 @@ PYBIND11_MODULE(ncnn, m)
         .def_readwrite("cstep", &Mat::cstep)
         .def("__repr__", [](const Mat &m) {
             char buf[256] = {0};
-            sprintf(buf, "<ncnn.Mat w=%d h=%d c=%d dims=%d cstep=%d elemsize=%d elempack=%d\n\trefcount=%d data=0x%x allocator=0x%x>",
+            sprintf(buf, "<ncnn.Mat w=%d h=%d c=%d dims=%d cstep=%ld elemsize=%ld elempack=%d\n\trefcount=%d data=0x%x allocator=0x%x>",
                     m.w, m.h, m.c, m.dims, m.cstep, m.elemsize, m.elempack, m.refcount ? *m.refcount : 0, m.data, m.allocator);
             return std::string(buf);
         });

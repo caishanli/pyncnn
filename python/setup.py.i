@@ -14,7 +14,7 @@ requirements = [
 
 setup(
   name          = 'ncnn',
-  version       = '0.0.1',
+  version       = '${PACKAGE_VERSION}',
   url           = 'https://github.com/caishanli/pyncnn',
   packages      = find_packages(),
   package_dir   = {'': '.'},

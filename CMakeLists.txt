@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 2.8.12)
 project(pyncnn)
 
 set( PACKAGE_VERSION "0.0.1" )
+add_definitions(-DVERSION_INFO="${PACKAGE_VERSION}")
 
 set( CMAKE_CXX_STANDARD 11 )
 set( CMAKE_CXX_STANDARD_REQUIRED ON )
