@@ -331,7 +331,7 @@ PYBIND11_MODULE(ncnn, m)
         .def_readwrite("cstep", &Mat::cstep)
         .def("__repr__", [](const Mat &m) {
             char buf[256] = {0};
-            sprintf(buf, "<ncnn.Mat w=%d h=%d c=%d dims=%d cstep=%ld elemsize=%ld elempack=%d\n\trefcount=%d data=0x%x allocator=0x%x>",
+            sprintf(buf, "<ncnn.Mat w=%d h=%d c=%d dims=%d cstep=%ld elemsize=%ld elempack=%d\n\trefcount=%d data=0x%p allocator=0x%p>",
                     m.w, m.h, m.c, m.dims, m.cstep, m.elemsize, m.elempack, m.refcount ? *m.refcount : 0, m.data, m.allocator);
             return std::string(buf);
         });
@@ -519,7 +519,7 @@ PYBIND11_MODULE(ncnn, m)
         .def("set_light_mode", &Extractor::set_light_mode)
         .def("set_num_threads", &Extractor::set_num_threads)
         .def("set_blob_allocator", &Extractor::set_blob_allocator)
-        .def("set_blob_allocator", &Extractor::set_workspace_allocator)
+        .def("set_workspace_allocator", &Extractor::set_workspace_allocator)
 #if NCNN_VULKAN
         .def("set_vulkan_compute", &Extractor::set_vulkan_compute)
         .def("set_blob_vkallocator", &Extractor::set_blob_vkallocator)
@@ -528,10 +528,12 @@ PYBIND11_MODULE(ncnn, m)
 #endif // NCNN_VULKAN
 #if NCNN_STRING
         .def("input", (int (Extractor::*)(const char *, const Mat &)) & Extractor::input)
-        .def("extract", (int (Extractor::*)(const char *, Mat &)) & Extractor::extract)
+        .def("extract", (int (Extractor::*)(const char *, Mat &, int)) & Extractor::extract, 
+            "get result by blob name", py::arg("blob_name"), py::arg("feat"), py::arg("type")=0)
 #endif
         .def("input", (int (Extractor::*)(int, const Mat &)) & Extractor::input)
-        .def("extract", (int (Extractor::*)(int, Mat &)) & Extractor::extract)
+        .def("extract", (int (Extractor::*)(int, Mat &, int)) & Extractor::extract, 
+            "get result by blob name", py::arg("blob_name"), py::arg("feat"), py::arg("type")=0)
 #if NCNN_VULKAN
         .def("input", (int (Extractor::*)(const char *, const VkMat &)) & Extractor::input)
         .def("extract", (int (Extractor::*)(const char *, VkMat &, VkCompute &)) & Extractor::extract)

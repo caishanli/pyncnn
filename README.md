@@ -16,22 +16,22 @@ python wrapper of [ncnn](https://github.com/Tencent/ncnn) with [pybind11](https:
 ## Build
 1. clone [ncnn](https://github.com/Tencent/ncnn) and [pybind11](https://github.com/pybind/pybind11), build and install with default setting, if you change the install directory, change the cmake commond with your setting.
 ```bash
-cd /path/to/ncnn
-mkdir build && cd build
-cmake ..
-make -j4
-make install
-```
-2. update `ENVS_EXECUTABLE`,`ENVS_LIB` and `ENVS_INCLUDE` to your path in `CMakeLists.txt`
-3. remove `find_package(Python3)` in `CMakeLists.text`, **this step is optional, it's up to your environment**
-4. change /path/to to your path and running the following cmd
-```bash
 cd /path/to/pyncnn
 mkdir build
 cd build
 cmake -DCMAKE_PREFIX_PATH=/path/to/ncnn/build/install/lib/cmake/ncnn/ ..
 make
-cd ../python
+```
+
+## Install
+```bash
+cd /path/to/pyncnn/python
+pip install .
+```
+
+if you use conda or miniconda, you can also install as following:
+```bash
+cd /path/to/pyncnn/python
 python3 setup.py install
 ```
 
