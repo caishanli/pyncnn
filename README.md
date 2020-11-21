@@ -6,12 +6,12 @@ python wrapper of [ncnn](https://github.com/Tencent/ncnn) with [pybind11](https:
 **On Unix (Linux, OS X)**
 
 * A compiler with C++11 support
-* CMake >= 2.8.12
+* CMake >= 3.15
 
 **On Windows**
 
 * Visual Studio 2015
-* CMake >= 3.1
+* CMake >= 3.15
 
 ## Build
 1. clone [ncnn](https://github.com/Tencent/ncnn) and [pybind11](https://github.com/pybind/pybind11), build and install with default setting, if you change the install directory, change the cmake commond with your setting.

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.15)
 
 project(pyncnn)
 
@@ -8,11 +8,7 @@ add_definitions(-DVERSION_INFO="${PACKAGE_VERSION}")
 set( CMAKE_CXX_STANDARD 11 )
 set( CMAKE_CXX_STANDARD_REQUIRED ON )
 
-set(ENVS_INCLUDE /home/caishanli/.conda/envs/pytorch/include)
-set(ENVS_LIB /home/caishanli/.conda/envs/pytorch/lib)
-set(ENVS_EXECUTABLE /home/caishanli/.conda/envs/pytorch/bin)
-
-find_package (Python3 COMPONENTS Interpreter Development)
+find_package(Python3 COMPONENTS Interpreter Development)
 find_package(ncnn CONFIG REQUIRED)
 find_package(pybind11 REQUIRED)
 
