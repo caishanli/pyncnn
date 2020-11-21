@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.4)
 
 project(pyncnn)
 
@@ -8,16 +8,18 @@ add_definitions(-DVERSION_INFO="${PACKAGE_VERSION}")
 set( CMAKE_CXX_STANDARD 11 )
 set( CMAKE_CXX_STANDARD_REQUIRED ON )
 
-find_package(Python3 COMPONENTS Interpreter Development)
+#find_package(Python3 REQUIRED Interpreter Development)
 find_package(ncnn CONFIG REQUIRED)
 find_package(pybind11 REQUIRED)
+set(CMAKE_MODULE_PATH "${pybind11_DIR};${CMAKE_MODULE_PATH}")
+find_package(PythonLibsNew REQUIRED)
 
 if(MSVC OR CMAKE_GENERATOR STREQUAL "Xcode")
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_BINARY_DIR}/ncnn/)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_BINARY_DIR}/ncnn/)
 endif(MSVC OR CMAKE_GENERATOR STREQUAL "Xcode")
 
-include_directories(${pybind11_INCLUDE_DIR})
+include_directories(${pybind11_INCLUDE_DIR} ${PYTHON_INCLUDE_DIRS})
 pybind11_add_module(pyncnn src/main.cpp)
 set_target_properties(pyncnn PROPERTIES OUTPUT_NAME "ncnn")
 target_link_libraries(pyncnn PUBLIC ncnn)
